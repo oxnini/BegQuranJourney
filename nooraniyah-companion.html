@@ -36,6 +36,8 @@
   --navy:#3A5BB0; --navy-2:#7F9BE0; --link:#9DBBFF; color-scheme:dark}
 
 *{box-sizing:border-box}
+/* the whole site reads 10% larger than its base sizes */
+body{zoom:1.1}
 body{background:var(--desk);color:var(--ink);font-family:var(--ui);font-size:17px;line-height:1.55;
   background-image:repeating-linear-gradient(0deg,var(--desk-weave) 0 1px,transparent 1px 3px),repeating-linear-gradient(90deg,var(--desk-weave) 0 1px,transparent 1px 3px)}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--desk)}
@@ -60,6 +62,8 @@ h1,h2,h3{text-wrap:balance;line-height:1.2;margin:0;font-family:var(--serif);fon
 @media (min-width:1100px){
   .spread{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:34px 28px;align-items:start}
   .spread>.book+.book{margin-top:0}
+  /* a page left alone on its row (one-page lessons, the third of three) sits centred */
+  .spread>.book:last-child:nth-child(odd){grid-column:1/-1;justify-self:center;width:calc(50% - 14px)}
   .lintro{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:8px 28px;align-items:start}
 }
 
@@ -761,7 +765,7 @@ function closePanel(){ stopAudio(); if(panel){panel.remove();panel=null} if(curr
 function place(){
   if(!panel||!current) return;
   const rr=current.closest('.row').getBoundingClientRect(), cr=current.getBoundingClientRect();
-  panel.style.setProperty('--caret',(cr.left+cr.width/2-rr.left)+'px');
+  panel.style.setProperty('--caret',((cr.left+cr.width/2-rr.left)/rr.width*100)+'%');
 }
 document.getElementById('main').addEventListener('click',e=>{
   const hb=e.target.closest('.hear-btn'); if(hb){ playClip(hb); return; }
