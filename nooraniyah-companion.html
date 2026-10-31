@@ -36,8 +36,9 @@
   --navy:#3A5BB0; --navy-2:#7F9BE0; --link:#9DBBFF; color-scheme:dark}
 
 *{box-sizing:border-box}
-/* the whole site reads 10% larger than its base sizes */
-body{zoom:1.1}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+/* the whole site reads 10% larger than its base sizes (phones get their own sizes below instead, so nothing spills off the screen) */
+@media (min-width:761px){body{zoom:1.1}}
 body{background:var(--desk);color:var(--ink);font-family:var(--ui);font-size:17px;line-height:1.55;
   background-image:repeating-linear-gradient(0deg,var(--desk-weave) 0 1px,transparent 1px 3px),repeating-linear-gradient(90deg,var(--desk-weave) 0 1px,transparent 1px 3px)}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--desk)}
@@ -153,6 +154,12 @@ h1,h2,h3{text-wrap:balance;line-height:1.2;margin:0;font-family:var(--serif);fon
 .lettercard .big{font-family:var(--ar);font-size:4rem;line-height:1.3;grid-row:span 5;text-align:center;min-width:1.4em}
 .lettercard h3{font-size:1.25rem}
 .lettercard p{margin:0;font-size:.93rem}
+/* phones: the big letter sits beside the name only, and the text runs full width underneath */
+@media (max-width:640px){
+  .lettercard{grid-template-columns:auto minmax(0,1fr);gap:2px 14px}
+  .lettercard .big{grid-row:span 2;font-size:3.4rem;min-width:1.2em}
+  .lettercard>:nth-child(n+4){grid-column:1/-1}
+}
 /* play button: the author's own reading of this letter */
 .hear{display:flex;align-items:center;gap:8px;margin-top:6px}
 .hear-btn{appearance:none;flex:none;display:grid;place-items:center;width:34px;height:34px;padding:0;border:0;border-radius:50%;background:var(--b-green);color:#fff;cursor:pointer;
@@ -196,14 +203,32 @@ nav.lessons a:focus-visible,.view button:focus-visible{outline:3px solid var(--l
 main{display:flex;flex-direction:column;gap:46px;padding-block:22px 80px}
 section.block{scroll-margin-top:calc(var(--navh,56px) + 12px)}
 /* book only: just the printed pages */
-body.bookmode :is(#symbols,#rules,.lhead,.lintro,header.top p,footer,nav .nb,nav .lbl){display:none}
+body.bookmode :is(#symbols,#rules,.lhead,.lfold,header.top p,footer,nav .nb,nav .lbl){display:none}
 body.bookmode nav.lessons .lbl+.num{border-inline-start:0}
 body.bookmode main{gap:40px}
-/* phones: one row, the lesson buttons swipe sideways */
+/* phones: the strip becomes one button naming the section you're in; it opens the full contents */
+.jump{display:none;appearance:none;flex:1;min-width:0;align-items:center;gap:10px;border:1px solid var(--frame);background:var(--card);color:var(--ink);min-height:44px;padding:0 12px;border-radius:0;cursor:pointer;text-align:left;font:inherit}
+.jump .jn{flex:none;font-family:var(--sc);text-transform:lowercase;letter-spacing:.05em;font-weight:700;font-size:.95rem;color:var(--muted)}
+.jump .jt{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:var(--serif);font-weight:700;font-size:1.05rem}
+.jump .chev{flex:none;width:0;height:0;border-top:7px solid var(--ink-r);border-left:6px solid transparent;border-right:6px solid transparent;transition:transform .15s}
+.jump[aria-expanded="true"] .chev{transform:rotate(180deg)}
+.jump:focus-visible{outline:3px solid var(--link);outline-offset:-3px}
+.jumpmenu{border-top:1px solid var(--line);max-height:calc(100dvh - var(--navh,56px) - 24px);overflow-y:auto;overscroll-behavior:contain;padding-bottom:10px}
+.jumpmenu ol{list-style:none;margin:8px 0 0;padding:0;border:1px solid var(--frame);background:var(--card)}
+.jumpmenu li+li{border-top:1px solid var(--line)}
+nav.lessons .jumpmenu a{border:0;white-space:normal;justify-content:stretch;display:grid;grid-template-columns:44px minmax(0,1fr);align-items:center;gap:12px;min-height:50px;padding:6px 12px;color:var(--ink);text-decoration:none}
+.jumpmenu a .o{width:40px;height:28px;border:1.5px solid var(--frame);border-radius:50%;display:grid;place-items:center;font-family:var(--serif);font-weight:700;font-size:1rem;font-variant-numeric:lining-nums}
+.jumpmenu a .o.s{border-style:double;border-width:3px;font-family:var(--ar);font-size:1.1rem}
+.jumpmenu a b{display:block;font-family:var(--serif);font-size:1.05rem;line-height:1.25}
+.jumpmenu a small{display:block;color:var(--muted);font-size:.85rem;line-height:1.3}
+nav.lessons .jumpmenu a:hover{background:#FFF0A8;color:var(--b-ink)}
+nav.lessons .jumpmenu a[aria-current]{background:var(--tab-on);color:#fff}
+.jumpmenu a[aria-current] small{color:rgb(255 255 255 / .8)}
+.jumpmenu a[aria-current] .o{border-color:#fff}
 @media (max-width:760px){
-  nav.lessons .links{flex:1}
-  nav.lessons .lbl{display:none}
-  .view button{padding:0 9px}
+  nav.lessons .links{display:none}
+  .jump{display:flex}
+  .view button{padding:0 9px;min-height:44px}
   .view .long{display:none}
 }
 body.bookmode header.top{padding-block:16px 6px}
@@ -263,6 +288,112 @@ body.bookmode header.top{padding-block:16px 6px}
 .rule p .ar{font-size:1.45rem!important}
 .rule .src{font-size:.82rem;color:#6A6550}
 footer{color:var(--muted);font-size:.85rem;padding-block:0 40px}
+
+/* ---------- folding: notes, rules and symbols open with a tap ---------- */
+details.fold>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;min-height:44px}
+details.fold>summary::-webkit-details-marker{display:none}
+details.fold>summary::before{content:"";flex:none;width:0;height:0;border-left:8px solid var(--ink-r);border-top:5px solid transparent;border-bottom:5px solid transparent;transition:transform .15s}
+details.fold[open]>summary::before{transform:rotate(90deg)}
+details.fold>summary:focus-visible{outline:3px solid var(--link);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){details.fold>summary::before,.jump .chev{transition:none}}
+.lfold{margin:0 0 16px}
+details.lfold>summary{display:block;padding-block:9px;font-family:var(--sc);text-transform:lowercase;letter-spacing:.05em;font-weight:700;font-size:1.05rem;color:var(--ink);border-bottom:1px solid var(--line);margin-bottom:12px}
+details.lfold>summary::before{display:inline-block;margin-right:10px;vertical-align:.08em}
+.lfold>summary small{margin-left:8px;font:500 .85rem var(--ui);letter-spacing:0;text-transform:none;color:var(--muted)}
+.lfold:not([open])>summary{margin-bottom:0}
+.rule.fold{padding:4px 18px}
+.rule.fold>summary h3{flex:1;min-width:0;padding-block:8px}
+.rule.fold[open]{padding-bottom:14px}
+.symgroup.fold>summary h3{margin:0}
+.symgroup.fold[open]>summary{margin-bottom:6px}
+.symgroup.fold>summary::before{border-left-color:var(--b-green)}
+
+/* ---------- play the whole lesson ---------- */
+.lplay{display:flex;align-items:center;flex-wrap:wrap;gap:4px 14px;margin:0 0 14px}
+.playall{appearance:none;display:inline-flex;align-items:center;gap:10px;border:1px solid var(--frame);background:var(--card);color:var(--ink);min-height:44px;padding:0 16px 0 6px;border-radius:0;cursor:pointer;
+  font:700 1rem var(--sc);text-transform:lowercase;letter-spacing:.05em;box-shadow:inset 0 0 0 2px var(--card),inset 0 0 0 3px var(--line)}
+.playall .ic{width:32px;height:32px;border-radius:50%;background:var(--b-green);color:#fff;display:grid;place-items:center}
+.playall .ic svg{width:16px;height:16px}
+.playall:hover{background:#FFF0A8;color:var(--b-ink)}
+.playall:focus-visible{outline:3px solid var(--link);outline-offset:2px}
+.lplay small{color:var(--muted);font-size:.88rem}
+.cell.now{background:#FFE9A8;box-shadow:inset 0 0 0 3px var(--b-green)}
+.player{position:fixed;left:0;right:0;bottom:0;z-index:8;background:var(--paper);color:var(--b-ink);border-top:3px double var(--navy);box-shadow:0 -8px 24px -12px rgb(0 0 0 / .35);
+  padding-bottom:env(safe-area-inset-bottom,0px)}
+.player[hidden]{display:none}
+.player .pl{max-width:760px;margin:0 auto;padding:8px max(16px,env(safe-area-inset-left,0px)) 10px;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:4px 12px}
+.pl-info{display:flex;align-items:baseline;gap:10px;min-width:0}
+.pl-word{font-family:var(--ar);font-size:1.9rem;line-height:1.5;direction:rtl;white-space:nowrap}
+.pl-meta{font-size:.88rem;color:#55513F;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pl-meta b{font-family:var(--sc);text-transform:lowercase;letter-spacing:.05em;color:var(--b-green)}
+.pl-ctl{display:flex;align-items:center;gap:6px}
+.pl-ctl button{appearance:none;display:grid;place-items:center;width:44px;height:44px;padding:0;border:1px solid #BFB58A;border-radius:50%;background:#FFFDF1;color:var(--b-ink);cursor:pointer}
+.pl-ctl button svg{width:20px;height:20px}
+.pl-ctl .pp{width:52px;height:52px;border:0;background:var(--b-green);color:#fff;box-shadow:inset 0 0 0 2px var(--b-green),inset 0 0 0 3px rgb(255 255 255 / .45)}
+.pl-ctl .pp svg{width:24px;height:24px}
+.pl-ctl .pp .pz,.pl-ctl .pp.on .sp{display:none}.pl-ctl .pp.on .pz{display:block}
+.pl-ctl .cl{border:0;background:transparent;width:36px}
+.pl-ctl button:focus-visible{outline:3px solid var(--link);outline-offset:2px}
+.pl-seek{grid-column:1/-1;width:100%;margin:0;accent-color:var(--b-green);height:28px}
+body.pl-on{padding-bottom:calc(140px + env(safe-area-inset-bottom,0px))}
+
+/* ---------- phones ---------- */
+@media (max-width:760px){
+  body{font-size:18px}
+  .wrap{padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+  header.top{padding-block:22px 12px}
+  header.top h1{font-size:1.9rem}
+  main{gap:40px}
+  /* printed pages use the full width: a thinner rope frame, and they reach into the side margins */
+  .book{padding:6px;margin-inline:-10px}
+  .book>.sheet{padding:8px 6px 26px}
+  .book{--fsq:99cqi!important}
+  .cell{font-size:var(--fsm,var(--fs,2rem));line-height:1.8}
+  .cell.letter{padding:20px 2px 16px;line-height:1.6}
+  /* a printed row wraps onto two lines: thin lines between words, a heavier line between book rows */
+  .cells{grid-template-columns:repeat(var(--pcols,var(--cols)),minmax(0,1fr))}
+  .book.split .cell{border:0;outline:1px solid var(--grid);outline-offset:-.5px}
+  .book.split .row+.row{border-top-width:3px}
+  .rules{gap:10px}
+
+  /* lesson heading: compact, so the page itself comes into view */
+  .lhead{gap:2px 12px;padding-bottom:10px;margin-bottom:12px}
+  .lhead .oval{width:46px;height:32px;font-size:1.2rem}
+  .lhead .eyebrow{font-size:.8rem}
+  .lhead .eyebrow .ar{font-size:1rem}
+  .lhead h2{font-size:1.2rem}
+  .lhead .tr{display:none}
+  .lnk{font-size:.9rem}
+  .lnk small{display:none}
+  .lhead .media{gap:4px 22px}
+  /* the printed banner keeps its shape but not its poster size; the English line repeats the heading, so it only shows in book view */
+  .banner{min-height:42px;margin-bottom:8px}
+  .banner .lno{font-size:1.1rem;padding:4px 12px 4px 16px}
+  .banner .ttl{font-size:1.1rem;line-height:1.45;padding:4px 18px 4px 10px}
+  body:not(.bookmode) .entitle{display:none}
+
+  /* tapped word: smaller text so the breakdown fits without scrolling */
+  .expand{padding:10px 10px;font-size:15px}
+  .expand .x{font-size:.82rem;padding:0 8px 2px}
+  .bd .top .word{font-size:2.3rem}
+  .bd .steps{gap:4px}
+  .bd .step{min-width:58px;padding:2px 5px 4px}
+  .bd .step .g{font-size:1.35rem;line-height:1.5}
+  .bd .step b{font-size:.8rem}
+  .bd .step .mk{font-size:.7rem}
+  .bd .step .s{font-size:.82rem}
+  .bd .whole{font-size:.85rem}
+  .bd .whole strong{font-size:1.05rem}
+  .bd .script{font-size:.8rem}
+  .bd .notes2{font-size:.78rem}
+  .hear small{font-size:.76rem}
+  .hear-btn{width:32px;height:32px}
+  .hears{flex-direction:row;flex-wrap:wrap;gap:6px 18px}
+  .hear small{max-width:9em}
+  .lettercard h3{font-size:1.05rem}
+  .lettercard p{font-size:.88rem}
+  .lettercard .big{font-size:2.8rem}
+}
 </style>
 
 <header class="top wrap">
@@ -273,7 +404,9 @@ footer{color:var(--muted);font-size:.85rem;padding-block:0 40px}
 </header>
 
 <nav class="lessons" aria-label="Jump to"><div class="wrap bar"><div class="links" id="nav"></div>
-  <div class="view" role="group" aria-label="View"><button type="button" data-v="notes" aria-pressed="true"><span class="long">With </span>notes</button><button type="button" data-v="book" aria-pressed="false">Book<span class="long"> only</span></button></div></div></nav>
+  <button type="button" class="jump" id="jump" aria-expanded="false" aria-controls="jumpmenu"><span class="jn">Symbols</span><span class="jt"></span><span class="chev" aria-hidden="true"></span></button>
+  <div class="view" role="group" aria-label="View"><button type="button" data-v="notes" aria-pressed="true"><span class="long">With </span>notes</button><button type="button" data-v="book" aria-pressed="false">Book<span class="long"> only</span></button></div></div>
+  <div class="wrap jumpmenu" id="jumpmenu" hidden><ol id="jumplist"></ol></div></nav>
 
 <main class="wrap" id="main">
   <section class="block" id="symbols">
@@ -300,6 +433,17 @@ footer{color:var(--muted);font-size:.85rem;padding-block:0 40px}
 
   <div id="lessonsout" style="display:contents"></div>
 </main>
+
+<div class="player" id="player" role="region" aria-label="Lesson player" hidden><div class="pl">
+  <div class="pl-info"><span class="pl-word" lang="ar"></span><span class="pl-meta" aria-live="polite"></span></div>
+  <div class="pl-ctl">
+    <button type="button" class="pv" aria-label="Previous word"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5h2v14H6zM20 5v14L9 12z" fill="currentColor"/></svg></button>
+    <button type="button" class="pp" aria-label="Play"><svg class="sp" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg><svg class="pz" viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="5" width="4" height="14" rx="1" fill="currentColor"/><rect x="13.5" y="5" width="4" height="14" rx="1" fill="currentColor"/></svg></button>
+    <button type="button" class="nx" aria-label="Next word"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 5h2v14h-2zM4 5v14l11-7z" fill="currentColor"/></svg></button>
+    <button type="button" class="cl" aria-label="Close the player"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button>
+  </div>
+  <input type="range" class="pl-seek" min="0" max="0" step="1" value="0" aria-label="Skip to word">
+</div></div>
 
 <footer class="wrap">
   <p>Retyped from the 28-page PDF (quranclasses.net). Each page shows its printed page number in the oval, like the book, and its PDF page number in the corner. The colours were read from the scan, and I typed the text from a blurry copy, so if a mark looks different from your teacher’s book, trust the book and let me know.</p>
@@ -478,7 +622,9 @@ const RULES=[
  ['Noon sākin and tanween: the 4 rules <span class="tag later">later</span>','ء ه ع ح غ خ','What happens to an “n” sound (نْ or tanween) depending on the next letter:<br><b>Iẓhār (clear):</b> before throat letters ء ه ع ح غ خ.<br><b>Idghām (merge):</b> before ى ر م ل و ن.<br><b>Iqlāb (turns to m):</b> before ب.<br><b>Ikhfāʾ (hidden, nasal):</b> before the other 15 letters.','Printed on PDF page 10 (book p.13). Here for reference until your teacher covers it.'],
  ['Counting the stretch','','1 count is roughly the time to fold one finger.<br><b>Madd letter, small alif/yaa/waw:</b> 2 counts.<br><b>~ with a hamza after:</b> 4–5 counts.<br><b>~ in Lesson 3 letters:</b> 6 counts.','Leen (aw / ay) is short when you keep reading.']
 ];
-document.getElementById('rulelist').innerHTML=RULES.map(([h,l,p,s])=>`<div class="rule"><h3>${h}</h3>${l?`<div class="letters">${l}</div>`:''}<p>${p}</p><p class="src">${s}</p></div>`).join('');
+// Notes, rules and symbol groups fold away on phones so the lesson pages stay close; wider screens show them open.
+const WIDE=matchMedia('(min-width:761px)').matches, OPEN=WIDE?' open':'';
+document.getElementById('rulelist').innerHTML=RULES.map(([h,l,p,s])=>`<details class="rule fold"${OPEN}><summary><h3>${h}</h3></summary>${l?`<div class="letters">${l}</div>`:''}<p>${p}</p><p class="src">${s}</p></details>`).join('');
 
 /* ---------- lessons (rows in book order, right to left) ---------- */
 const yt=n=>'https://www.youtube.com/results?search_query='+encodeURIComponent(`القاعدة النورانية الدرس ${n} قراءة معلم Nuraniah Lesson ${n} Teacher`);
@@ -573,7 +719,11 @@ const LIT={1:'The single letters of the alphabet',2:'The joined letters of the a
 const FS={1:'clamp(2.3rem,8vw,3.3rem)',2:'clamp(1.7rem,5.6vw,2.5rem)',3:'clamp(1.6rem,5vw,2.4rem)',4:'clamp(1.8rem,5.8vw,2.7rem)',5:'clamp(1.8rem,5.8vw,2.7rem)',
  6:'clamp(1.45rem,4.8vw,2.35rem)',7:'clamp(1.9rem,6.4vw,2.7rem)',8:'clamp(1.7rem,6vw,2.6rem)',9:'clamp(1.45rem,4.8vw,2.35rem)',10:'clamp(1.9rem,6.6vw,2.8rem)'};
 // Upper limit as a share of the page width, so words still fit when two pages share the screen.
-const FSQ={2:'5.4cqi',3:'5.4cqi',6:'5cqi',8:'7.6cqi',9:'5cqi'};
+const FSQ={2:'6.6cqi',3:'6.6cqi',4:'7cqi',5:'6.6cqi',6:'6.2cqi',8:'7.9cqi',9:'6.2cqi'};
+// Phones: each printed row wraps onto two lines (PSPLIT), so the words can be about twice as big;
+// FSM is then as large as each lesson's widest word allows.
+const PSPLIT=new Set([2,4,5,6,7,8,9,10]);
+const FSM={1:'13vw',2:'12.5vw',3:'8.5vw',4:'13.5vw',5:'13vw',6:'11vw',7:'13.5vw',8:'12vw',9:'11vw',10:'14vw'};
 
 /* Draw a word with each kind of mark in its own colour: one copy per mark type underneath, the bare letters on top. */
 const CAT={[F]:'fatha',[K]:'kasra',[D]:'damma',[FT]:'tan',[KT]:'tan',[DT]:'tan',[S]:'sukoon',[DAG]:'madd',[MAD]:'madd',[ZERO]:'silent',[SH]:'shadda'};
@@ -624,17 +774,24 @@ function letterHTML(ch,hear){
 
 /* ---------- audio: Sheikh Haqqani's own reading (archive.org, one track per lesson), cut per cell ----------
    One small file per book row (audio/l{lesson}r{row}.mp3). CLIPS[lesson][cell] = [row, start, end] in seconds, in book order.
+   A 4th value marks the kind: 1 = shared by cells read together, 2 = spelled out, with the closing whole-word reading at [ws, we];
+   3 = the same, but the whole-word start was estimated from the last dip in loudness (no clear pause before it);
+   4 = one syllable cut from a group the teacher reads in one breath (e.g. كَوْ كَىْ "kaw kay"), so each cell plays only its own.
    Speed: a row starts downloading as it scrolls near, and is decoded the moment one of its cells is tapped. */
-const CLIPS=/*CLIPS*/{"1":[[0,0.08,1.18],[0,1.48,2.65],[0,2.95,4.1],[0,4.4,5.6],[0,5.9,6.84],[1,0.08,1.43],[1,1.73,3.12],[1,3.42,4.86],[1,5.16,6.39],[1,6.69,7.92],[2,0.08,1.32],[2,1.62,2.75],[2,3.05,4.19],[2,4.49,5.8],[2,6.1,7.66],[3,0.08,1.32],[3,1.62,2.99],[3,3.29,4.35],[3,4.65,5.76],[3,6.06,7.19],[4,0.08,1.24],[4,1.54,2.63],[4,2.93,4.3],[4,4.6,5.75],[4,6.05,7.23],[5,0.08,1.55],[5,1.85,3.11],[5,3.41,4.58],[5,4.88,6.15],[5,6.45,7.6]],"3":[[0,0.08,6.72],[0,7.02,15.55],[0,15.85,19.01],[0,19.31,25.4],[1,0.08,8.5],[1,8.8,10.15],[1,10.45,14.67],[2,0.08,2.47],[2,2.77,5.6],[2,5.9,8.62],[2,8.92,12.24],[3,0.08,15.71],[3,16.01,18.17],[3,18.47,20.46]],"7":[[0,0.08,2.82],[0,3.12,5.8],[0,6.1,8.97],[0,9.27,11.84],[0,12.14,14.72],[0,15.02,17.68],[0,17.98,20.6],[1,0.08,2.76],[1,3.06,5.65],[1,5.95,8.75],[1,9.05,11.74],[1,12.04,13.54],[1,13.84,15.15],[1,15.45,16.61],0,0,0,0,0,0,0,0,0,0,0,0,0,0,[4,0.08,2.84],[4,3.14,5.95],[4,6.25,9.18],[4,9.48,12.27],[4,12.57,15.41]],"4":[[0,0.08,1.84],[0,2.14,3.7],[0,4.0,5.57],[0,5.87,7.86],[0,8.16,9.98],[0,10.28,11.93],[0,12.23,14.17],[0,14.47,16.24],[1,0.08,2.13],[1,2.43,4.37],[1,4.67,6.38],[1,6.68,8.48],[1,8.78,10.87],[1,11.17,12.91],[1,13.21,14.95],[1,15.25,17.38],[2,0.08,1.71],[2,2.01,3.68],[2,3.98,6.07],[2,6.37,8.0],[2,8.3,10.07],[2,10.37,12.19],[2,12.49,14.31],[2,14.61,16.23],[3,0.08,1.92],[3,2.22,3.96],[3,4.26,5.92],[3,6.22,8.07],[3,8.37,10.03],[3,10.33,11.98],[3,12.28,14.14],[3,14.44,16.13],[4,0.08,1.73],[4,2.03,4.4],[4,4.7,6.31],[4,6.61,8.23],[4,8.53,10.36],[4,10.66,12.31],[4,12.61,14.19],[4,14.49,16.19],[5,0.08,1.82],[5,2.12,3.72],[5,4.02,6.14],[5,6.44,8.17],[5,8.47,10.14],[5,10.44,12.38],[5,12.68,14.21],[5,14.51,16.06],[6,0.08,1.51,1],[6,0.08,1.51,1],[6,0.08,1.51,1],[6,1.81,3.27,1],[6,1.81,3.27,1],[6,1.81,3.27,1],[6,3.57,5.0,1],[6,3.57,5.0,1],[7,0.08,1.51,1],[7,1.81,3.06,1],[7,1.81,3.06,1],[7,1.81,3.06,1],[7,3.36,4.7,1],[7,3.36,4.7,1],[7,3.36,4.7,1],[7,5.0,6.52,1],[8,0.08,1.6,1],[8,0.08,1.6,1],[8,1.9,3.22,1],[8,1.9,3.22,1],[8,1.9,3.22,1],[8,3.52,5.25,1],[8,3.52,5.25,1],[8,3.52,5.25,1],[9,0.08,1.28,1],[9,0.08,1.28,1],[9,0.08,1.28,1],[9,1.58,2.99,1],[9,1.58,2.99,1],[9,1.58,2.99,1],[9,3.29,4.6,1],[9,3.29,4.6,1],[10,0.08,1.39,1],[10,1.69,2.9,1],[10,1.69,2.9,1],[10,1.69,2.9,1]],"5":[[0,0.08,2.25],[0,2.55,4.68],[0,4.98,7.05],[0,7.35,9.85],[0,10.15,12.29],[0,12.59,14.68],[0,14.98,17.11],[0,17.41,19.53],[1,0.08,2.24],[1,2.54,4.51],[1,4.81,6.95],[1,7.25,9.28],[1,9.58,11.75],[1,12.05,14.18],[1,14.48,16.58],[1,16.88,19.04],[2,0.08,2.27],[2,2.57,4.64],[2,4.94,7.08],[2,7.38,9.41],[2,9.71,11.72],[2,12.02,14.21],[2,14.51,16.73],[2,17.03,19.18],[3,0.08,2.24],[3,2.54,4.75],[3,5.05,7.18],[3,7.48,9.65],[3,9.95,12.14],[3,12.44,14.63],[3,14.93,16.92],[3,17.22,19.16],[4,0.08,2.13],[4,2.43,4.57],[4,4.87,7.04],[4,7.34,9.34],[4,9.64,11.33,1],[4,9.64,11.33,1],[4,9.64,11.33,1],[4,11.63,13.3,1],[5,0.08,1.75,1],[5,0.08,1.75,1],[5,2.05,3.74,1],[5,2.05,3.74,1],[5,2.05,3.74,1],[5,4.04,5.69,1],[5,4.04,5.69,1],[5,4.04,5.69,1],[6,0.08,1.83,1],[6,0.08,1.83,1],[6,0.08,1.83,1],[6,2.13,3.81,1],[6,2.13,3.81,1],[6,2.13,3.81,1],[6,4.11,5.86,1],[6,4.11,5.86,1],[7,0.08,1.83,1],[7,2.13,3.89,1],[7,2.13,3.89,1],[7,2.13,3.89,1],[7,4.19,5.78,1],[7,4.19,5.78,1],[7,4.19,5.78,1],[7,6.08,7.66,1],[8,0.08,1.66,1],[8,0.08,1.66,1],[8,1.96,3.53,1],[8,1.96,3.53,1],[8,1.96,3.53,1],[8,3.83,5.49,1],[8,3.83,5.49,1],[8,3.83,5.49,1],[9,0.08,1.64,1],[9,0.08,1.64,1],[9,0.08,1.64,1],[9,1.94,3.57,1],[9,1.94,3.57,1],[9,1.94,3.57,1],[9,3.87,5.37,1],[9,3.87,5.37,1],[10,0.08,1.58,1],[10,1.88,3.73],[10,4.03,6.01],[10,6.31,8.31]],"10":[[0,0.08,2.61,2,1.87,2.61],[0,2.91,5.4,2,4.72,5.4],[0,5.7,8.15,2,7.46,8.15],[0,8.45,10.79,2,10.19,10.79],[0,11.09,13.51,2,12.94,13.51],[0,13.81,16.3,2,15.65,16.3],[1,0.08,2.59,2,1.84,2.59],[1,2.89,5.48,2,4.74,5.48],[1,5.78,8.44,2,7.66,8.44],[1,8.74,11.25,2,10.55,11.25],[1,11.55,14.09,2,13.42,14.09],[1,14.39,16.95,2,16.15,16.95],[2,0.08,2.63,2,1.87,2.63],[2,2.93,5.47,2,4.75,5.47],[2,5.77,8.29,2,7.56,8.29],[2,8.59,11.07,2,10.39,11.07],[2,11.37,13.81,2,13.17,13.81],[2,14.11,16.63,2,15.93,16.63],[3,0.08,2.65,2,1.9,2.65],[3,2.95,5.45,2,4.75,5.45],[3,5.75,8.3,2,7.62,8.3],[3,8.6,11.22,2,10.54,11.22],[3,11.52,14.14,2,13.39,14.14],[3,14.44,16.91,2,16.23,16.91],[4,0.08,2.49,2,1.82,2.49],[4,2.79,5.39,2,4.7,5.39],[4,5.69,8.23,2,7.58,8.23],[4,8.53,11.0,2,10.28,11.0],[4,11.3,13.9,2,13.05,13.9],[4,14.2,16.69,2,15.92,16.69],[5,0.08,2.67,2,1.82,2.67],[5,2.97,5.71,2,4.85,5.71],[5,6.01,8.65,2,7.84,8.65],[5,8.95,11.54,2,10.71,11.54],[5,11.84,14.53,2,13.74,14.53],[5,14.83,17.51,2,16.71,17.51],[6,0.08,2.85,2,1.95,2.85],[6,3.15,5.95,2,5.15,5.95],[6,6.25,8.95,2,8.1,8.95],[6,9.25,11.98,2,11.27,11.98],[6,12.28,14.83,2,14.16,14.83],[6,15.13,17.57,2,16.88,17.57],[7,0.08,2.6,2,1.79,2.6],[7,2.9,5.36,2,4.69,5.36],[7,5.66,8.2,2,7.47,8.2],[7,8.5,11.0,2,10.28,11.0],[7,11.3,13.78,2,13.05,13.78],[7,14.08,16.54,2,15.78,16.54]],"6":[[0,0.08,12.77,2,11.47,12.77],[0,13.07,25.49,2,24.23,25.49],[0,25.79,37.19,2,35.81,37.19],[0,37.49,48.32,2,47.07,48.32],[0,48.62,59.9,2,58.42,59.9],[0,60.2,66.82,2,65.8,66.82],[1,0.08,11.2,2,9.82,11.2],[1,11.5,12.97],[1,13.27,14.84],[1,15.14,16.51],[1,16.81,18.23],[1,18.53,20.0],[2,0.08,11.15,2,9.78,11.15],[2,11.45,22.5,2,20.99,22.5],[2,22.8,33.95,2,32.52,33.95],[2,34.25,35.67],[2,35.97,37.34],[2,37.64,39.19],[3,0.08,12.57,2,10.94,12.57],[3,12.87,29.77,2,28.18,29.77],[3,30.07,42.83,2,41.25,42.83],[3,43.13,44.63],[3,44.93,56.93,2,55.66,56.93],0,[4,0.08,7.81,2,6.65,7.81],[4,8.11,9.58],[4,9.88,11.34],[4,11.64,12.94],[4,13.24,14.61],[4,14.91,16.4],[5,0.08,1.44],[5,1.74,3.18],[5,3.48,19.95,2,18.58,19.95],[5,20.25,21.71],[5,22.01,33.54,2,32.09,33.54],[5,33.84,45.03,2,43.64,45.03],[6,0.08,11.96,2,10.63,11.96],[6,12.26,13.56],[6,13.86,14.99],[6,15.29,16.56],[6,16.86,18.33],[6,18.63,30.75,2,29.35,30.75],[7,0.08,1.28],[7,1.58,2.96],[7,3.26,4.52],[7,4.82,6.0],[7,6.3,22.87,2,21.36,22.87],[7,23.17,24.51],[8,0.08,1.42],[8,1.72,3.54],[8,3.84,5.04],[8,5.34,6.63],[8,6.93,23.4,2,22.01,23.4],[8,23.7,31.44,2,30.22,31.44]],"2":[[0,0.08,1.2],[0,1.5,2.72],[0,3.02,4.2],[0,4.5,5.97],[0,6.27,7.52],[0,7.82,9.37],[1,0.08,1.3],[1,1.6,3.33],[1,3.63,4.88],[1,5.18,7.37],[1,7.67,8.96],[1,9.26,10.48],[2,0.08,1.68],[2,1.98,3.68],[2,3.98,5.33],[2,5.63,6.81],[2,7.11,9.28],[2,9.58,11.56],[3,0.08,1.38],[3,1.68,2.8],[3,3.1,4.32],[3,4.62,6.01],[3,6.31,7.41],[3,7.71,9.0],[4,0.08,1.48],[4,1.78,2.99],[4,3.29,4.59],[4,4.89,6.17],[4,6.47,8.1],[4,8.4,9.94],[5,0.08,1.78],[5,2.08,3.58],[5,3.88,5.42],[5,5.72,7.51],[5,7.81,9.32],[5,9.62,11.24],[6,0.08,1.7],[6,2.0,3.5],[6,3.8,5.24],[6,5.54,7.08],[6,7.38,9.06],[6,9.36,10.9],[7,0.08,1.51],[7,1.81,3.48],[7,3.78,5.33],[7,5.63,7.22],[7,7.52,9.01],[7,9.31,10.8],[8,0.08,2.21],[8,2.51,4.5],[8,4.8,6.89],[8,7.19,9.23],[8,9.53,11.57],[8,11.87,13.81],[9,0.08,2.13],[9,2.43,4.31],[9,4.61,6.63],[9,6.93,8.93],[9,9.23,10.72],[9,11.02,12.36],[10,0.08,1.55],[10,1.85,3.45],[10,3.75,5.36],[10,5.66,7.38],[10,7.68,9.64],[10,9.94,11.92],[11,0.08,2.17],[11,2.47,3.65],[11,3.95,5.22],[11,5.52,7.02],[11,7.32,8.71],[11,9.01,10.57],[12,0.08,1.87],[12,2.17,3.51],[12,3.81,5.91],[12,6.21,7.86],[12,8.16,10.15],[12,10.45,11.78],[13,0.08,1.32],[13,1.62,3.41],[13,3.71,5.26],[13,5.56,6.88],[13,7.18,8.45],[13,8.75,10.45],[14,0.08,1.78],[14,2.08,3.54],[14,3.84,5.04],[14,5.34,7.01],[14,7.31,8.85],[14,9.15,10.57],[15,0.08,1.4],[15,1.7,3.38],[15,3.68,5.3],[15,5.6,7.09],[15,7.39,8.98],[15,9.28,10.48],[16,0.08,1.59],[16,1.89,3.52],[16,3.82,5.43],[16,5.73,7.0],[16,7.3,8.83],[16,9.13,10.34],[17,0.08,1.33],[17,1.63,3.04],[17,3.34,4.86],[17,5.16,6.91],[17,7.21,8.75],[17,9.05,10.61],[18,0.08,2.48],[18,2.78,4.9],[18,5.2,6.6],[18,6.9,8.3],[18,8.6,9.85],[18,10.15,11.33],[19,0.08,1.41],[19,1.71,2.95],[19,3.25,4.76],[19,5.06,6.68],[19,6.98,9.0],[20,0.08,1.99],[20,2.29,3.75],[20,4.05,5.28],[20,5.58,6.86],[20,7.16,8.52],[21,0.08,1.58],[21,1.88,3.25],[21,3.55,5.53]],"8":[[0,0.08,3.39,2,1.98,3.39],[0,3.69,7.2],[0,7.5,10.64,2,9.72,10.64],[0,10.94,13.96,2,12.85,13.96],[0,14.26,17.55],[0,17.85,20.82,2,20.17,20.82],[0,21.12,24.2,2,22.98,24.2],[1,0.08,3.26,2,2.14,3.26],[1,3.56,6.8,2,5.85,6.8],[1,7.1,10.34,2,9.36,10.34],[1,10.64,14.09,2,12.76,14.09],[1,14.39,17.45,2,16.48,17.45],[1,17.75,20.68,2,19.51,20.68],[1,20.98,24.25,2,23.12,24.25],[2,0.08,3.27,2,2.16,3.27],[2,3.57,6.52,2,5.38,6.52],[2,6.82,10.21,2,8.98,10.21],[2,10.51,13.54,2,12.62,13.54],[2,13.84,19.35],[2,19.65,22.86,2,22.24,22.86],[2,23.16,26.21],[3,0.08,2.91,2,1.8,2.91],[3,3.21,6.29],[3,6.59,9.44],[3,9.74,12.88],[3,13.18,16.28],[3,16.58,19.66,2,18.72,19.66],[3,19.96,22.82,2,21.68,22.82],[4,0.08,3.35],[4,3.65,6.59,2,6.06,6.59],[4,6.89,9.88,2,8.66,9.88],[4,10.18,13.39,2,12.58,13.39],[4,13.69,16.75,2,16.06,16.75],[4,17.05,20.02,2,18.92,20.02],[4,20.32,23.43,2,23.0,23.43],[5,0.08,3.13],[5,3.43,6.37,2,5.21,6.37],[5,6.67,9.82,2,8.66,9.82],[5,10.12,13.18,2,12.08,13.18],[5,13.48,16.49,2,15.45,16.49],[5,16.79,20.4,2,19.4,20.4],[5,20.7,23.95,2,23.3,23.95],[6,0.08,2.71,1],[6,0.08,2.71,1],[6,0.08,2.71,1],[6,3.01,5.5,1],[6,3.01,5.5,1],[6,3.01,5.5,1],[6,5.8,8.41,1],[7,0.08,2.69,1],[7,0.08,2.69,1],[7,2.99,5.51,1],[7,2.99,5.51,1],[7,2.99,5.51,1],[7,5.81,8.56,1],[7,5.81,8.56,1],[8,0.08,2.83,1],[8,3.13,5.82,1],[8,3.13,5.82,1],[8,3.13,5.82,1],[8,6.12,8.65,1],[8,6.12,8.65,1],[8,6.12,8.65,1],[9,0.08,2.76,1],[9,0.08,2.76,1],[9,0.08,2.76,1],[9,3.06,5.7,1],[9,3.06,5.7,1],[9,3.06,5.7,1],[9,6.0,8.61,1],[10,0.08,2.69,1],[10,0.08,2.69,1],[10,2.99,5.58,1],[10,2.99,5.58,1],[10,2.99,5.58,1],[10,5.88,8.56,1],[10,5.88,8.56,1],[11,0.08,2.76,1],[11,3.06,6.04,2,4.94,6.04],[11,6.34,9.42],[11,9.72,12.79,2,12.1,12.79],[11,13.09,15.98,2,14.89,15.98],[11,16.28,19.89,2,18.42,19.89],[11,20.19,23.07,2,22.22,23.07],[12,0.08,2.47,2,1.88,2.47],[12,2.77,5.22,2,4.6,5.22],[12,5.52,8.25,2,7.52,8.25],[12,8.55,11.0,2,10.41,11.0],[12,11.3,14.16,2,13.21,14.16],[12,14.46,16.97,2,16.37,16.97],[12,17.27,19.87,2,19.14,19.87],[13,0.08,2.79,2,1.99,2.79],[13,3.09,5.68,2,4.96,5.68],[13,5.98,8.6,2,7.73,8.6],[13,8.9,11.45,2,10.82,11.45],[13,11.75,14.42,2,13.59,14.42],[13,14.72,17.22,2,16.6,17.22],[13,17.52,20.13,2,19.33,20.13],[14,0.08,2.57,2,1.91,2.57],[14,2.87,5.32,2,4.68,5.32],[14,5.62,8.28,2,7.6,8.28],[14,8.58,11.26,2,10.44,11.26],[14,11.56,14.01,2,13.39,14.01],[14,14.31,16.89,2,16.28,16.89],[14,17.19,19.64,2,18.96,19.64],[15,0.08,2.5,2,1.87,2.5],[15,2.8,5.51,2,4.69,5.51],[15,5.81,8.25,2,7.65,8.25],[15,8.55,11.03,2,10.27,11.03],[15,11.33,13.86,2,12.99,13.86],[15,14.16,16.54,2,15.85,16.54],[15,16.84,19.21,2,18.49,19.21],[16,0.08,1.4,1],[16,0.08,1.4,1],[16,1.7,3.05,1],[16,1.7,3.05,1],[16,3.35,4.94,1],[16,3.35,4.94,1],[16,5.24,6.62,1],[17,0.08,1.46,1],[17,1.76,3.2,1],[17,1.76,3.2,1],[17,3.5,4.86,1],[17,3.5,4.86,1],[17,5.16,6.64,1],[17,5.16,6.64,1],[18,0.08,1.55,1],[18,0.08,1.55,1],[18,1.85,3.24,1],[18,1.85,3.24,1],[18,3.54,4.92,1],[18,3.54,4.92,1],[18,5.22,6.54,1],[19,0.08,1.4,1],[19,1.7,4.36],[19,4.66,7.02],[19,7.32,9.68],[19,9.98,12.25],[19,12.55,15.27],[19,15.57,17.98,2,17.34,17.98]],"9":[[0,0.08,15.54,2,13.96,15.54],[0,15.84,28.99,2,26.99,28.99],[0,29.29,52.2,2,50.52,52.2],[0,52.5,72.19,2,70.48,72.19],[0,72.49,81.99,2,80.65,81.99],[0,82.29,93.02,2,91.35,93.02],[1,0.08,11.83,2],[1,12.13,23.32,2],[1,23.62,35.83,2,34.31,35.83],[1,36.13,47.04,2,45.66,47.04],[1,47.34,58.39,2,56.87,58.39],[1,58.69,79.11,2,77.03,79.11],[2,0.08,15.72,2,14.06,15.72],[2,16.02,26.51,2,25.1,26.51],[2,26.81,37.78,2],[2,38.08,53.55,2,52.1,53.55],[2,53.85,64.49,2,63.09,64.49],[2,64.79,74.93,2,73.4,74.93],[3,0.08,9.43,2,8.18,9.43],[3,9.73,19.93,2,18.61,19.93],[3,20.23,21.58],[3,21.88,23.33],[3,23.63,24.94],[3,25.24,26.57],[4,0.08,1.49],[4,1.79,12.23,2,10.89,12.23],[4,12.53,13.83],[4,14.13,15.32],[4,15.62,16.72],[4,17.02,18.27],[5,0.08,9.45,2,8.07,9.45],[5,9.75,20.12,2,18.71,20.12],[5,20.42,30.89,2,29.43,30.89],[5,31.19,42.97,2],[5,43.27,53.63,2,52.15,53.63],[5,53.93,64.45,2,62.95,64.45],[6,0.08,15.08,2,13.33,15.08],[6,15.38,16.78],[6,17.08,18.51],[6,18.81,20.19],[6,20.49,22.07],[6,22.37,23.78],[7,0.08,20.15,2,17.86,20.15],[7,20.45,37.04,2,35.59,37.04],[7,37.34,54.13,2,52.42,54.13],[7,54.43,71.99,2,70.41,71.99],[7,72.29,89.22,2,87.76,89.22],[7,89.52,105.36,2],[8,0.08,1.55],[8,1.85,3.39],[8,3.69,5.14],[8,5.44,6.99],[8,7.29,8.95],[8,9.25,10.77],[9,0.08,1.67],[9,1.97,3.45],[9,3.75,5.21],[9,5.51,7.21],[9,7.51,9.19],[9,9.49,10.86],[10,0.08,17.05,2],[10,17.35,33.69,2],[10,33.99,51.63,2],[10,51.93,63.9,2],[10,64.2,78.31,2,76.73,78.31],[10,78.61,80.06],[11,0.08,1.62],[11,1.92,16.66,2,14.98,16.66],[11,16.96,31.97,2,30.25,31.97],[11,32.27,33.74],[11,34.04,35.45],[11,35.75,37.32],[12,0.08,1.56],[12,1.86,3.38],[12,3.68,5.35],[12,5.65,7.12],[12,7.42,24.99,2,23.09,24.99],[12,25.29,27.03],[13,0.08,1.76],[13,2.06,3.57],[13,3.87,5.59],[13,5.89,7.46],[13,7.76,24.71,2,22.92,24.71],[13,25.01,26.65],[14,0.08,1.55],[14,1.85,3.42],[14,3.72,5.18],[14,5.48,6.94],[14,7.24,8.65],[14,8.95,10.5],[15,0.08,1.81],[15,2.11,3.63],[15,3.93,20.37,2,18.71,20.37],[15,20.67,22.29],[15,22.59,24.18],[15,24.48,25.89],[16,0.08,17.41,2,15.85,17.41],[16,17.71,51.98,2,49.6,51.98],[16,52.28,78.78,2,76.74,78.78],[17,0.08,34.73,2],[17,35.03,57.19,2,55.24,57.19]]}/*END*/;
+const CLIPS=/*CLIPS*/{"1":[[0,0.08,1.18],[0,1.48,2.65],[0,2.95,4.09],[0,4.4,5.6],[0,5.9,6.84],[1,0.08,1.43],[1,1.73,3.12],[1,3.42,4.86],[1,5.16,6.39],[1,6.69,7.92],[2,0.08,1.32],[2,1.62,2.75],[2,3.05,4.19],[2,4.49,5.8],[2,6.1,7.66],[3,0.08,1.32],[3,1.62,2.99],[3,3.29,4.34],[3,4.65,5.76],[3,6.06,7.19],[4,0.08,1.24],[4,1.54,2.63],[4,2.93,4.3],[4,4.6,5.75],[4,6.05,7.23],[5,0.08,1.55],[5,1.85,3.11],[5,3.41,4.58],[5,4.88,6.15],[5,6.45,7.6]],"3":[[0,0.08,6.72],[0,7.02,15.55],[0,15.85,19.01],[0,19.31,25.4],[1,0.08,8.5],[1,8.8,10.15],[1,10.45,14.67],[2,0.08,2.47],[2,2.77,5.6],[2,5.9,8.61],[2,8.92,12.24],[3,0.08,15.71],[3,16.01,18.17],[3,18.47,20.46]],"7":[[0,0.08,2.82,3,1.91,2.63],[0,3.12,5.8,3,4.92,5.58],[0,6.1,8.97,3,7.91,8.57],[0,9.27,11.84,3,11.01,11.63],[0,12.14,14.72,3,13.87,14.52],[0,15.02,17.68,3,16.83,17.47],[0,17.98,20.6,3,19.75,20.39],[1,0.08,2.76,3,1.82,2.52],[1,3.06,5.65,3,4.79,5.44],[1,5.95,8.75,3,7.87,8.53],[1,9.05,11.74,3,10.87,11.53],[1,12.04,13.54],[1,13.84,15.15],[1,15.45,16.61],0,0,0,0,0,0,0,0,0,0,0,0,0,0,[4,0.08,2.84,3,1.92,2.52],[4,3.14,5.95,3,5.1,5.79],[4,6.25,9.18,3,8.39,8.96],[4,9.48,12.27,3,11.49,12.17],[4,12.57,15.41,3,14.57,15.28]],"4":[[0,0.08,1.84,3,1.03,1.38],[0,2.14,3.7,3,3.15,3.45],[0,4.0,5.57,3,4.96,5.31],[0,5.87,7.86,3,6.98,7.33],[0,8.16,9.98,3,9.27,9.6],[0,10.28,11.93,3,11.34,11.69],[0,12.23,14.17,3,13.13,13.83],[0,14.47,16.23,3,15.7,16.03],[1,0.08,2.13,3,1.27,1.62],[1,2.43,4.37,3,3.59,3.94],[1,4.67,6.38,3,5.87,6.19],[1,6.68,8.48,3,7.76,8.11],[1,8.78,10.87,3,9.94,10.3],[1,11.17,12.91,3,12.34,12.68],[1,13.21,14.95,3,14.27,14.62],[1,15.25,17.38,3,16.35,16.73],[2,0.08,1.71,3,1.22,1.5],[2,2.01,3.68,3,3.15,3.48],[2,3.98,6.07,3,5.12,5.46],[2,6.37,8.0,3,7.44,7.78],[2,8.3,10.07,3,9.37,9.71],[2,10.37,12.19,3,11.47,11.82],[2,12.49,14.31,3,13.57,13.9],[2,14.61,16.23,3,15.68,16.04],[3,0.08,1.92,3,1.25,1.61],[3,2.22,3.96,3,3.36,3.69],[3,4.26,5.92,3,5.37,5.72],[3,6.22,8.07,3,7.32,7.7],[3,8.37,10.02,3,9.45,9.82],[3,10.33,11.98,3,11.43,11.8],[3,12.28,14.14,3,13.44,13.82],[3,14.44,16.13,3,15.58,15.9],[4,0.08,1.73,3,1.18,1.51],[4,2.03,4.4,3,3.2,3.58],[4,4.7,6.31,3,5.77,6.06],[4,6.61,8.23,3,7.66,8.0],[4,8.53,10.36,3,9.58,9.96],[4,10.66,12.31,3,11.72,12.07],[4,12.61,14.19,3,13.66,14.0],[4,14.49,16.19,3,15.22,15.91],[5,0.08,1.82,3,0.95,1.48],[5,2.12,3.72,3,2.92,3.51],[5,4.02,6.14,3,5.14,5.51],[5,6.44,8.17,3,7.54,7.84],[5,8.47,10.14,3,9.56,9.9],[5,10.44,12.38,3,11.49,11.82],[5,12.68,14.21,3,13.72,14.02],[5,14.51,16.05,3,15.51,15.84],[6,0.08,0.52,4],[6,0.52,0.79,4],[6,0.79,1.51,4],[6,1.81,2.14,4],[6,2.14,2.37,4],[6,2.37,3.27,4],[6,3.57,4.03,4],[6,4.03,4.31,4],[7,0.82,1.51,4],[7,1.81,2.23,4],[7,2.23,2.5,4],[7,2.5,3.06,4],[7,3.36,3.83,4],[7,3.83,4.13,4],[7,4.13,4.7,4],[7,5.0,5.44,4],[8,0.52,0.76,4],[8,0.76,1.6,4],[8,1.9,2.34,4],[8,2.34,2.61,4],[8,2.61,3.22,4],[8,3.52,3.94,4],[8,3.94,4.17,4],[8,4.17,5.25,4],[9,0.08,0.46,4],[9,0.46,0.7,4],[9,0.7,1.28,4],[9,1.58,2.03,4],[9,2.03,2.28,4],[9,2.28,2.99,4],[9,3.29,3.74,4],[9,3.74,3.99,4],[10,0.78,1.39,4],[10,1.69,2.06,4],[10,2.06,2.33,4],[10,2.33,2.9,4]],"5":[[0,0.08,2.25,3,1.13,2.02],[0,2.55,4.68,3,3.58,4.5],[0,4.98,7.05,3,5.97,6.85],[0,7.35,9.85,3,8.82,9.21],[0,10.15,12.29,3,11.66,12.08],[0,12.59,14.68,3,14.03,14.45],[0,14.98,17.11,3,16.46,16.85],[0,17.41,19.53,3,18.87,19.34],[1,0.08,2.24,3,1.13,2.0],[1,2.54,4.51,3,3.99,4.4],[1,4.81,6.95,3,6.29,6.69],[1,7.25,9.27,3,8.67,9.09],[1,9.58,11.75,3,11.09,11.52],[1,12.05,14.18,3,13.54,13.95],[1,14.48,16.57,3,15.91,16.35],[1,16.88,19.04,3,18.39,18.8],[2,0.08,2.27,3,1.66,2.04],[2,2.57,4.63,3,4.03,4.43],[2,4.94,7.08,3,6.43,6.78],[2,7.38,9.41,3,8.87,9.24],[2,9.71,11.72,3,11.1,11.49],[2,12.02,14.21,3,13.55,13.95],[2,14.51,16.73,3,16.1,16.48],[2,17.03,19.18,3,18.54,18.94],[3,0.08,2.24,3,1.62,2.04],[3,2.54,4.75,3,4.02,4.48],[3,5.05,7.18,3,6.57,7.0],[3,7.48,9.65,3,9.02,9.43],[3,9.95,12.14,3,11.47,11.85],[3,12.44,14.63,3,14.03,14.38],[3,14.93,16.92,3,16.33,16.73],[3,17.22,19.16,3,18.62,19.04],[4,0.08,2.13,3,1.46,1.86],[4,2.43,4.57,3,3.92,4.33],[4,4.87,7.04,3,6.4,6.78],[4,7.34,9.34,3,8.81,9.19],[4,9.64,10.14,4],[4,10.14,10.63,4],[4,10.63,11.33,4],[4,11.63,12.16,4],[5,0.61,1.07,4],[5,1.07,1.75,4],[5,2.05,2.53,4],[5,2.53,2.92,4],[5,2.92,3.75,4],[5,4.04,4.58,4],[5,4.58,5.03,4],[5,5.03,5.69,4],[6,0.08,0.74,4],[6,0.74,1.16,4],[6,1.16,1.83,4],[6,2.13,2.72,4],[6,2.72,3.14,4],[6,3.14,3.81,4],[6,4.11,4.74,4],[6,4.74,5.16,4],[7,1.13,1.83,4],[7,2.13,2.75,4],[7,2.75,3.18,4],[7,3.18,3.89,4],[7,4.19,4.67,4],[7,4.67,5.07,4],[7,5.07,5.78,4],[7,6.08,6.54,4],[8,0.54,1.01,4],[8,1.01,1.66,4],[8,1.96,2.49,4],[8,2.49,2.86,4],[8,2.86,3.53,4],[8,3.83,4.4,4],[8,4.4,4.79,4],[8,4.79,5.49,4],[9,0.08,0.62,4],[9,0.62,0.97,4],[9,0.97,1.64,4],[9,1.94,2.54,4],[9,2.54,2.93,4],[9,2.93,3.57,4],[9,3.87,4.3,4],[9,4.3,4.75,4],[10,0.96,1.58,4],[10,1.88,3.73,3,3.18,3.59],[10,4.03,6.01,3,5.38,5.81],[10,6.31,8.31,3,7.65,8.08]],"10":[[0,0.08,2.61,2,1.96,2.61],[0,2.91,5.4,2,4.73,5.4],[0,5.7,8.15,2,7.52,8.15],[0,8.45,10.79,2,10.24,10.79],[0,11.09,13.51,2,12.95,13.51],[0,13.81,16.3,2,15.66,16.3],[1,0.08,2.59,2,1.94,2.59],[1,2.89,5.48,2,4.75,5.48],[1,5.78,8.44,2,7.75,8.44],[1,8.74,11.25,2,10.67,11.25],[1,11.55,14.09,2,13.48,14.09],[1,14.39,16.95,2,16.27,16.95],[2,0.08,2.63,2,1.95,2.63],[2,2.93,5.47,2,4.77,5.47],[2,5.77,8.28,2,7.57,8.28],[2,8.59,11.07,2,10.4,11.07],[2,11.37,13.81,2,13.18,13.81],[2,14.11,16.63,2,15.93,16.63],[3,0.08,2.65,2,1.94,2.65],[3,2.95,5.45,2,4.86,5.45],[3,5.75,8.3,2,7.64,8.3],[3,8.6,11.22,2,10.61,11.22],[3,11.52,14.14,2,13.49,14.14],[3,14.44,16.91,2,16.28,16.91],[4,0.08,2.49,2,1.84,2.49],[4,2.79,5.39,2,4.82,5.39],[4,5.69,8.23,2,7.61,8.23],[4,8.53,11.0,2,10.36,11.0],[4,11.3,13.9,2,13.12,13.9],[4,14.2,16.69,2,15.99,16.69],[5,0.08,2.67,2,1.93,2.67],[5,2.97,5.71,2,4.86,5.71],[5,6.01,8.65,2,7.9,8.65],[5,8.95,11.54,2,10.82,11.54],[5,11.84,14.53,2,13.75,14.53],[5,14.83,17.51,2,16.72,17.51],[6,0.08,2.85,2,2.09,2.85],[6,3.15,5.95,2,5.17,5.95],[6,6.25,8.94,2,8.24,8.94],[6,9.25,11.98,2,11.39,11.98],[6,12.28,14.83,2,14.21,14.83],[6,15.13,17.57,2,16.92,17.57],[7,0.08,2.6,2,1.88,2.6],[7,2.9,5.36,2,4.7,5.36],[7,5.66,8.19,2,7.56,8.19],[7,8.5,11.0,2,10.33,11.0],[7,11.3,13.78,2,13.1,13.78],[7,14.08,16.54,2,15.87,16.54]],"6":[[0,0.08,12.77,2,11.36,12.77],[0,13.07,25.49,2,24.08,25.49],[0,25.79,37.19,2,35.71,37.19],[0,37.49,48.32,2,46.96,48.32],[0,48.62,59.9,2,58.31,59.9],[0,60.2,66.81,2,65.76,66.81],[1,0.08,11.2,2,9.71,11.2],[1,11.5,12.97],[1,13.27,14.84],[1,15.14,16.51],[1,16.81,18.23],[1,18.53,20.0],[2,0.08,11.15,2,9.74,11.15],[2,11.45,22.5,2,20.96,22.5],[2,22.8,33.95,2,32.47,33.95],[2,34.25,35.67],[2,35.97,37.34],[2,37.64,39.19],[3,0.08,12.57,2,10.92,12.57],[3,12.87,29.77,2,28.07,29.77],[3,30.07,42.83,2,41.1,42.83],[3,43.13,44.63],[3,44.93,56.93,2,55.53,56.93],0,[4,0.08,7.81,2,6.51,7.81],[4,8.11,9.58],[4,9.88,11.34],[4,11.64,12.94],[4,13.24,14.61],[4,14.91,16.39],[5,0.08,1.44],[5,1.74,3.18],[5,3.48,19.95,2,18.49,19.95],[5,20.25,21.71],[5,22.01,33.54,2,31.95,33.54],[5,33.84,45.03,2,43.52,45.03],[6,0.08,11.96,2,10.6,11.96],[6,12.26,13.56],[6,13.86,14.99],[6,15.29,16.55],[6,16.86,18.32],[6,18.63,30.75,2,29.29,30.75],[7,0.08,1.28],[7,1.58,2.96],[7,3.26,4.51],[7,4.82,6.0],[7,6.3,22.87,2,21.29,22.87],[7,23.17,24.51],[8,0.08,1.42],[8,1.72,3.54],[8,3.84,5.04],[8,5.34,6.63],[8,6.93,23.4,2,21.94,23.4],[8,23.7,31.44,2,30.07,31.44]],"2":[[0,0.08,1.2],[0,1.5,2.72],[0,3.02,4.2],[0,4.5,5.97],[0,6.27,7.52],[0,7.82,9.36],[1,0.08,1.3],[1,1.6,3.33],[1,3.63,4.88],[1,5.18,7.37],[1,7.67,8.96],[1,9.26,10.48],[2,0.08,1.68],[2,1.98,3.68],[2,3.98,5.33],[2,5.63,6.81],[2,7.11,9.27],[2,9.58,11.56],[3,0.08,1.38],[3,1.68,2.8],[3,3.1,4.32],[3,4.62,6.01],[3,6.31,7.41],[3,7.71,9.0],[4,0.08,1.48],[4,1.78,2.99],[4,3.29,4.59],[4,4.89,6.17],[4,6.47,8.1],[4,8.4,9.94],[5,0.08,1.78],[5,2.08,3.58],[5,3.88,5.42],[5,5.72,7.51],[5,7.81,9.32],[5,9.62,11.24],[6,0.08,1.7],[6,2.0,3.5],[6,3.8,5.24],[6,5.54,7.08],[6,7.38,9.06],[6,9.36,10.9],[7,0.08,1.51],[7,1.81,3.48],[7,3.78,5.33],[7,5.63,7.22],[7,7.52,9.01],[7,9.31,10.8],[8,0.08,2.21],[8,2.51,4.5],[8,4.8,6.89],[8,7.19,9.23],[8,9.53,11.57],[8,11.87,13.81],[9,0.08,2.13],[9,2.43,4.3],[9,4.61,6.63],[9,6.93,8.93],[9,9.23,10.72],[9,11.02,12.36],[10,0.08,1.55],[10,1.85,3.45],[10,3.75,5.36],[10,5.66,7.38],[10,7.68,9.64],[10,9.94,11.92],[11,0.08,2.17],[11,2.47,3.65],[11,3.95,5.22],[11,5.52,7.02],[11,7.32,8.71],[11,9.01,10.57],[12,0.08,1.87],[12,2.17,3.51],[12,3.81,5.91],[12,6.21,7.86],[12,8.16,10.15],[12,10.45,11.78],[13,0.08,1.32],[13,1.62,3.41],[13,3.71,5.26],[13,5.56,6.88],[13,7.18,8.44],[13,8.75,10.45],[14,0.08,1.78],[14,2.08,3.54],[14,3.84,5.04],[14,5.34,7.01],[14,7.31,8.85],[14,9.15,10.57],[15,0.08,1.4],[15,1.7,3.38],[15,3.68,5.3],[15,5.6,7.09],[15,7.39,8.98],[15,9.28,10.48],[16,0.08,1.59],[16,1.89,3.52],[16,3.82,5.43],[16,5.73,7.0],[16,7.3,8.83],[16,9.13,10.34],[17,0.08,1.33],[17,1.63,3.04],[17,3.34,4.86],[17,5.16,6.91],[17,7.21,8.75],[17,9.05,10.61],[18,0.08,2.48],[18,2.78,4.9],[18,5.2,6.6],[18,6.9,8.3],[18,8.6,9.85],[18,10.15,11.33],[19,0.08,1.41],[19,1.71,2.95],[19,3.25,4.76],[19,5.06,6.68],[19,6.98,9.0],[20,0.08,1.99],[20,2.29,3.75],[20,4.05,5.28],[20,5.58,6.86],[20,7.16,8.52],[21,0.08,1.58],[21,1.88,3.25],[21,3.55,5.53]],"8":[[0,0.08,3.39,2,2.1,3.39],[0,3.69,7.2,3,5.37,6.84],[0,7.5,10.64,2,9.76,10.64],[0,10.94,13.96,2,12.91,13.96],[0,14.26,17.55,3,16.4,17.36],[0,17.85,20.82,2,20.18,20.82],[0,21.12,24.2,2,23.09,24.2],[1,0.08,3.26,2,2.22,3.26],[1,3.56,6.8,2,5.87,6.8],[1,7.1,10.34,2,9.2,10.34],[1,10.64,14.09,2,12.84,14.09],[1,14.39,17.45,2,16.56,17.45],[1,17.75,20.68,2,19.64,20.68],[1,20.98,24.25,2,23.14,24.25],[2,0.08,3.27,2,2.27,3.27],[2,3.57,6.52,2,5.46,6.52],[2,6.82,10.21,2,8.99,10.21],[2,10.51,13.54,2,12.63,13.54],[2,13.84,19.35,3,18.26,19.07],[2,19.65,22.86,2,22.09,22.86],[2,23.16,26.21,3,24.87,25.99],[3,0.08,2.91,2,1.85,2.91],[3,3.21,6.29,3,5.22,6.09],[3,6.59,9.44,3,8.57,9.33],[3,9.74,12.88,3,11.2,12.44],[3,13.18,16.28,3,15.34,16.17],[3,16.58,19.66,2,18.74,19.66],[3,19.96,22.82,2,21.82,22.82],[4,0.08,3.35,3,2.11,3.03],[4,3.65,6.59,2,5.98,6.59],[4,6.89,9.88,2,8.79,9.88],[4,10.18,13.39,2,12.6,13.39],[4,13.69,16.75,2,16.07,16.75],[4,17.05,20.02,2,18.94,20.02],[4,20.32,23.43,2,23.14,23.43],[5,0.08,3.13,3,1.72,2.97],[5,3.43,6.37,2,5.32,6.37],[5,6.67,9.82,2,8.72,9.82],[5,10.12,13.18,2,12.14,13.18],[5,13.48,16.48,2,15.49,16.48],[5,16.79,20.39,2,19.41,20.39],[5,20.7,23.95,2,23.32,23.95],[6,0.08,1.12,4],[6,1.12,1.81,4],[6,1.81,2.71,4],[6,3.01,3.95,4],[6,3.95,4.64,4],[6,4.64,5.5,4],[6,5.8,6.8,4],[7,1.08,1.78,4],[7,1.78,2.69,4],[7,2.99,3.92,4],[7,3.92,4.57,4],[7,4.57,5.51,4],[7,5.81,6.85,4],[7,6.85,7.62,4],[8,1.89,2.83,4],[8,3.13,4.1,4],[8,4.1,4.84,4],[8,4.84,5.82,4],[8,6.12,7.06,4],[8,7.06,7.77,4],[8,7.77,8.65,4],[9,0.08,1.03,4],[9,1.03,1.77,4],[9,1.77,2.76,4],[9,3.06,3.98,4],[9,3.98,4.77,4],[9,4.77,5.7,4],[9,6.0,6.87,4],[10,0.95,1.69,4],[10,1.69,2.69,4],[10,2.99,3.95,4],[10,3.95,4.71,4],[10,4.71,5.58,4],[10,5.88,6.85,4],[10,6.85,7.53,4],[11,1.74,2.76,4],[11,3.06,6.04,2,4.95,6.04],[11,6.34,9.42,3,8.0,9.31],[11,9.72,12.79,2,12.11,12.79],[11,13.09,15.98,2,15.03,15.98],[11,16.28,19.89,2,18.55,19.89],[11,20.19,23.07,2,22.3,23.07],[12,0.08,2.47,2,1.89,2.47],[12,2.77,5.22,2,4.64,5.22],[12,5.52,8.25,2,7.54,8.25],[12,8.55,11.0,2,10.43,11.0],[12,11.3,14.16,2,13.35,14.16],[12,14.46,16.97,2,16.39,16.97],[12,17.27,19.87,2,19.27,19.87],[13,0.08,2.79,2,2.03,2.79],[13,3.09,5.68,2,4.98,5.68],[13,5.98,8.6,2,7.75,8.6],[13,8.9,11.45,2,10.87,11.45],[13,11.75,14.42,2,13.61,14.42],[13,14.72,17.22,2,16.6,17.22],[13,17.52,20.13,2,19.35,20.13],[14,0.08,2.57,2,1.92,2.57],[14,2.87,5.32,2,4.69,5.32],[14,5.62,8.27,2,7.61,8.27],[14,8.58,11.26,2,10.54,11.26],[14,11.56,14.01,2,13.44,14.01],[14,14.31,16.89,2,16.3,16.89],[14,17.19,19.64,2,19.03,19.64],[15,0.08,2.5,2,1.93,2.5],[15,2.8,5.51,2,4.72,5.51],[15,5.81,8.25,2,7.67,8.25],[15,8.55,11.03,2,10.11,11.03],[15,11.33,13.86,2,13.0,13.86],[15,14.16,16.54,2,15.86,16.54],[15,16.84,19.21,2,18.51,19.21],[16,0.08,0.54,4],[16,0.54,1.4,4],[16,1.7,2.33,4],[16,2.33,3.05,4],[16,3.35,3.93,4],[16,3.93,4.94,4],[16,5.24,5.78,4],[17,0.62,1.46,4],[17,1.76,2.24,4],[17,2.24,3.2,4],[17,3.5,4.08,4],[17,4.08,4.86,4],[17,5.16,5.68,4],[17,5.68,6.64,4],[18,0.08,0.62,4],[18,0.62,1.55,4],[18,1.85,2.3,4],[18,2.3,3.24,4],[18,3.54,3.99,4],[18,3.99,4.92,4],[18,5.22,5.75,4],[19,0.61,1.4,4],[19,1.7,4.36,3,3.25,4.05],[19,4.66,7.02,3,6.07,6.77],[19,7.32,9.68,3,9.11,9.47],[19,9.98,12.25,3,11.3,12.02],[19,12.55,15.27,3,14.15,14.9],[19,15.57,17.98,2,17.36,17.98]],"9":[[0,0.08,15.54,2,13.85,15.54],[0,15.84,28.99,2,26.93,28.99],[0,29.29,52.2,2,50.48,52.2],[0,52.5,72.19,2,70.4,72.19],[0,72.49,81.99,2,80.55,81.99],[0,82.29,93.02,2,91.28,93.02],[1,0.08,11.83,2],[1,12.13,23.32,2],[1,23.62,35.83,2,34.16,35.83],[1,36.13,47.04,2,45.58,47.04],[1,47.34,58.39,2,56.78,58.39],[1,58.69,79.11,2,76.92,79.11],[2,0.08,15.72,2,13.96,15.72],[2,16.02,26.51,2,25.04,26.51],[2,26.81,37.78,2],[2,38.08,53.55,2,52.08,53.55],[2,53.85,64.48,2,63.03,64.48],[2,64.79,74.93,2,73.37,74.93],[3,0.08,9.43,2,8.15,9.43],[3,9.73,19.93,2,18.51,19.93],[3,20.23,21.58],[3,21.88,23.33],[3,23.63,24.94],[3,25.24,26.57],[4,0.08,1.49],[4,1.79,12.23,2,10.74,12.23],[4,12.53,13.83],[4,14.13,15.32],[4,15.62,16.72],[4,17.02,18.27],[5,0.08,9.44,2,8.02,9.44],[5,9.75,20.12,2,18.57,20.12],[5,20.42,30.89,2,29.38,30.89],[5,31.19,42.97,2],[5,43.27,53.63,2,52.08,53.63],[5,53.93,64.45,2,62.92,64.45],[6,0.08,15.08,2,13.28,15.08],[6,15.38,16.78],[6,17.08,18.51],[6,18.81,20.19],[6,20.49,22.07],[6,22.37,23.78],[7,0.08,20.14,2,17.82,20.14],[7,20.45,37.04,2,35.53,37.04],[7,37.34,54.13,2,52.31,54.13],[7,54.43,71.98,2,70.34,71.98],[7,72.29,89.22,2,87.75,89.22],[7,89.52,105.36,2],[8,0.08,1.55],[8,1.85,3.39],[8,3.69,5.14],[8,5.44,6.99],[8,7.29,8.94],[8,9.25,10.77],[9,0.08,1.67],[9,1.97,3.45],[9,3.75,5.21],[9,5.51,7.21],[9,7.51,9.19],[9,9.49,10.86],[10,0.08,17.05,2],[10,17.35,33.69,2],[10,33.99,51.63,2],[10,51.93,63.9,2],[10,64.2,78.31,2,76.59,78.31],[10,78.61,80.06],[11,0.08,1.62],[11,1.92,16.66,2,14.89,16.66],[11,16.96,31.97,2,30.1,31.97],[11,32.27,33.74],[11,34.04,35.45],[11,35.75,37.32],[12,0.08,1.56],[12,1.86,3.38],[12,3.68,5.35],[12,5.65,7.12],[12,7.42,24.99,2,22.94,24.99],[12,25.29,27.03],[13,0.08,1.76],[13,2.06,3.57],[13,3.87,5.59],[13,5.89,7.46],[13,7.76,24.71,2,22.9,24.71],[13,25.01,26.65],[14,0.08,1.55],[14,1.85,3.42],[14,3.72,5.18],[14,5.48,6.94],[14,7.24,8.65],[14,8.95,10.5],[15,0.08,1.81],[15,2.11,3.63],[15,3.93,20.37,2,18.65,20.37],[15,20.67,22.29],[15,22.59,24.18],[15,24.48,25.89],[16,0.08,17.41,2,15.76,17.41],[16,17.71,51.98,2,49.52,51.98],[16,52.28,78.78,2,76.68,78.78],[17,0.08,34.72,2],[17,35.03,57.19,2,55.11,57.19]]}/*END*/;
 const HEAR=/*HEAR*/{"1":"Hear the name","2":"Hear the letter names","3":"Hear it read","4":"Hear it spelled out","5":"Hear it spelled out","6":"Hear it read","7":"Hear it spelled out","8":"Hear it spelled out","9":"Hear it read","10":"Hear it spelled out"}/*END*/;
 const clipOf=d=>(CLIPS[d.n]||[])[d.k]||null;
 const fileOf=(n,r)=>`audio/l${n}r${String(r).padStart(2,'0')}.mp3`;
-let actx=null, playing=null;
-const raw=new Map(), dec=new Map();
-function ctx(){
-  if(!actx){ const C=window.AudioContext||window.webkitAudioContext; if(!C) return null; actx=new C(); }
-  if(actx.state==='suspended') actx.resume().catch(()=>{});
-  return actx;
+const PL={n:0,items:[],i:0,on:false,timer:0,tok:0}; // the whole-lesson player
+/* Playback goes through one <audio> element, the way music players work, not through Web Audio:
+   phones then play it even with the ring/silent switch on, and keep playing with the screen locked.
+   Each row file is decoded once, and a clip is cut from it as a small WAV, so it starts and stops exactly on the word. */
+const AEL=new Audio(); AEL.setAttribute('playsinline',''); AEL.preload='auto';
+const raw=new Map(), dec=new Map(), wavs=new Map();
+let dctx=null, playTok=0, hearBtn=null;
+function decoder(){
+  if(!dctx){ const C=window.OfflineAudioContext||window.webkitOfflineAudioContext; if(!C) return null; dctx=new C(1,1,22050); }
+  return dctx;
 }
 function fetchRow(f){
   if(!raw.has(f)) raw.set(f,fetch(f).then(r=>{if(!r.ok)throw new Error(r.status);return r.arrayBuffer()}).catch(e=>{raw.delete(f);throw e}));
@@ -642,17 +799,64 @@ function fetchRow(f){
 }
 function decodeRow(f){
   if(!dec.has(f)){
-    dec.set(f,fetchRow(f).then(a=>new Promise((ok,no)=>ctx().decodeAudioData(a.slice(0),ok,no))).catch(e=>{dec.delete(f);throw e}));
-    if(dec.size>24) dec.delete(dec.keys().next().value);
+    dec.set(f,fetchRow(f).then(a=>new Promise((ok,no)=>{ const p=decoder().decodeAudioData(a.slice(0),ok,no); if(p&&p.catch) p.catch(no); })).catch(e=>{dec.delete(f);throw e}));
+    if(dec.size>8) dec.delete(dec.keys().next().value); // whole rows are large; keep only the last few
   }
   return dec.get(f);
 }
-function warm(d){ const c=clipOf(d); if(!c||!ctx()) return; decodeRow(fileOf(d.n,c[0])).catch(()=>{}); }
-function stopAudio(){ if(playing){ const p=playing; playing=null; try{p.stop()}catch(e){} } }
+// cut [s,e] seconds out of a decoded row as a 16-bit mono WAV, with 6 ms fades so it doesn't click
+function wavOf(buf,s,e){
+  const sr=buf.sampleRate, ch=buf.getChannelData(0), a=Math.max(0,Math.round(s*sr)), b=Math.min(ch.length,Math.round(e*sr)), n=Math.max(0,b-a), fade=Math.min(Math.round(sr*.006),n>>1);
+  const out=new DataView(new ArrayBuffer(44+n*2)), str=(o,t)=>{for(let i=0;i<t.length;i++)out.setUint8(o+i,t.charCodeAt(i))};
+  str(0,'RIFF');out.setUint32(4,36+n*2,true);str(8,'WAVEfmt ');out.setUint32(16,16,true);out.setUint16(20,1,true);out.setUint16(22,1,true);
+  out.setUint32(24,sr,true);out.setUint32(28,sr*2,true);out.setUint16(32,2,true);out.setUint16(34,16,true);str(36,'data');out.setUint32(40,n*2,true);
+  for(let i=0;i<n;i++){ let v=ch[a+i]; if(i<fade) v*=i/fade; else if(i>=n-fade) v*=(n-1-i)/fade; v=Math.max(-1,Math.min(1,v)); out.setInt16(44+i*2,v<0?v*0x8000:v*0x7FFF,true); }
+  return URL.createObjectURL(new Blob([out],{type:'audio/wav'}));
+}
+async function clipUrl(f,s,e){
+  const key=f+'|'+s+'|'+e;
+  if(!wavs.has(key)){
+    wavs.set(key,decodeRow(f).then(buf=>wavOf(buf,s,e)).catch(err=>{wavs.delete(key);throw err}));
+    if(wavs.size>80){ const k=wavs.keys().next().value; wavs.get(k).then(u=>URL.revokeObjectURL(u),()=>{}); wavs.delete(k); }
+  }
+  return wavs.get(key);
+}
+// start a clip; onend runs only if it plays to the end (not if something else stops it)
+function playUrl(url,onend){
+  const t=++playTok;
+  AEL.onended=()=>{ if(t===playTok) onend&&onend(); };
+  AEL.src=url;
+  const p=AEL.play(); if(p&&p.then) p.then(()=>{primed=true},()=>{});
+  return p;
+}
+function warm(d){ const c=clipOf(d); if(!c) return; decodeRow(fileOf(d.n,c[0])).catch(()=>{}); }
+function stopAudio(){
+  clearTimeout(PL.timer); PL.tok++; playTok++;
+  try{ AEL.pause(); }catch(e){}
+  if(hearBtn){ hearBtn.classList.remove('playing'); hearBtn=null; }
+  if(PL.on){ PL.on=false; plUI(); } // any other sound pauses the lesson player
+}
+/* Phones only let a page start sound from a tap. The first taps play a moment of silence on the shared element,
+   which unlocks it for everything after, including clips that start once their audio has loaded. */
+let primed=false;
+function silentWav(){
+  const n=800, b=new Uint8Array(44+n), v=new DataView(b.buffer), s=(o,t)=>{for(let i=0;i<t.length;i++)b[o+i]=t.charCodeAt(i)};
+  s(0,'RIFF');v.setUint32(4,36+n,true);s(8,'WAVEfmt ');v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);
+  v.setUint32(24,8000,true);v.setUint32(28,8000,true);v.setUint16(32,1,true);v.setUint16(34,8,true);s(36,'data');v.setUint32(40,n,true);b.fill(128,44);
+  return URL.createObjectURL(new Blob([b],{type:'audio/wav'}));
+}
+const SILENT=silentWav();
+function prime(){
+  if(primed||!AEL.paused) return;
+  try{ if(navigator.audioSession) navigator.audioSession.type='playback'; }catch(e){}
+  AEL.onended=null; AEL.src=SILENT;
+  const p=AEL.play(); if(p&&p.then) p.then(()=>{primed=true},()=>{}); else primed=true;
+}
+['touchend','click','keydown'].forEach(t=>addEventListener(t,prime,{capture:true,passive:true}));
 const ICON='<svg class="sp" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><svg class="pz" viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="6" width="4" height="12" rx="1" fill="currentColor"/><rect x="13.5" y="6" width="4" height="12" rx="1" fill="currentColor"/></svg>';
 function hearHTML(d,id){
   const c=clipOf(d); if(!c) return '';
-  const lbl=c[3]===1?'Hear this letter':c[3]===2?'Hear it spelled out':(HEAR[d.n]||'Hear it');
+  const lbl=c[3]===1?'Hear this letter':c[3]===2?'Hear it spelled out':c[3]===4?'Hear it read':(HEAR[d.n]||'Hear it');
   const cap=(c[3]===1?'This letter’s sounds, read together':({'Hear the name':'Letter name','Hear the letter names':'Letter names','Hear it read':'Read aloud'}[lbl]||'Spelled out'))+' · Sheikh Haqqani';
   const one=(lbl,cap,part)=>`<div class="hear"><button type="button" class="hear-btn" data-id="${id}"${part?` data-part="${part}"`:''} aria-label="${esc(lbl)}" title="${esc(lbl)}">${ICON}</button><small data-cap="${esc(cap)}">${esc(cap)}</small></div>`;
   // spelled-out words also get the teacher's closing reading of the whole word
@@ -662,24 +866,104 @@ function hearHTML(d,id){
 async function playClip(btn){
   const d=store.get(+btn.dataset.id), c=d&&clipOf(d), t=btn.parentNode.querySelector('small'); if(!c) return;
   if(btn.classList.contains('playing')){ stopAudio(); return; }
-  const a=ctx(); if(!a){ t.textContent='This browser can’t play the recording'; return; }
   t.textContent=t.dataset.cap;
   stopAudio(); btn.classList.add('busy');
+  const tok=playTok;
   try{
-    const buf=await decodeRow(fileOf(d.n,c[0]));
-    const src=a.createBufferSource(); src.buffer=buf; src.connect(a.destination);
+    if(!decoder()) throw new Error('no decoder');
     const [s0,s1]=btn.dataset.part==='w'?[c[4],c[5]]:[c[1],c[2]];
-    src.start(0,s0,s1-s0); playing=src;
-    btn.classList.add('playing');
-    src.onended=()=>{ if(playing===src) playing=null; btn.classList.remove('playing'); };
-  }catch(e){ t.textContent='Couldn’t load the recording. Tap to retry'; }
+    const url=await clipUrl(fileOf(d.n,c[0]),s0,s1);
+    if(tok!==playTok) return; // something else started meanwhile
+    hearBtn=btn; btn.classList.add('playing');
+    await playUrl(url,()=>{ btn.classList.remove('playing'); if(hearBtn===btn) hearBtn=null; });
+  }catch(e){
+    btn.classList.remove('playing');
+    t.textContent=e&&e.name==='NotAllowedError'?'Tap again to play':'Couldn’t load the recording. Tap to retry';
+  }
   finally{ btn.classList.remove('busy'); }
 }
 
+/* ---------- play the whole lesson: each cell once, in book order, using only the closing whole-word reading ---------- */
+const player=document.getElementById('player'), plWord=player.querySelector('.pl-word'), plMeta=player.querySelector('.pl-meta'),
+      plPP=player.querySelector('.pp'), plSeek=player.querySelector('.pl-seek');
+const GAP=450; // pause between words, ms
+const smooth=()=>matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth';
+function lessonItems(n){
+  const items=[];
+  store.forEach((d,id)=>{
+    if(d.n!==n) return; const c=clipOf(d); if(!c) return;
+    let s,e;
+    if(c.length>4){ s=c[4]; e=c[5]; }      // spelled out: just the reading at the end
+    else if(c[3]===2) return;             // spelled out, but no whole-word reading was found
+    else { s=c[1]; e=c[2]; }              // already read whole
+    const last=items[items.length-1];
+    if(last&&last.r===c[0]&&last.s===s&&last.e===e){ last.ids.push(id); last.t+=' '+d.t; return; } // cells read together share a clip
+    items.push({ids:[id],t:d.t,r:c[0],s,e,f:fileOf(n,c[0])});
+  });
+  return items;
+}
+function plUI(scroll){
+  const it=PL.items[PL.i];
+  plWord.innerHTML=it?(LAYERED.has(PL.n)?layered(it.t.replace(/~/g,ZWJ)):esc(it.t.replace(/~/g,''))):'';
+  plMeta.innerHTML=`<b>Lesson ${PL.n}</b> · ${PL.i+1} of ${PL.items.length}`;
+  plSeek.max=Math.max(0,PL.items.length-1); plSeek.value=PL.i;
+  plPP.classList.toggle('on',PL.on); plPP.setAttribute('aria-label',PL.on?'Pause':'Play');
+  document.querySelectorAll('.cell.now').forEach(c=>c.classList.remove('now'));
+  if(!it||player.hidden) return;
+  const cells=it.ids.map(id=>document.querySelector(`.cell[data-id="${id}"]`)).filter(Boolean);
+  cells.forEach(c=>c.classList.add('now'));
+  const c=cells[0];
+  if(scroll&&c&&c.offsetParent){ const r=c.getBoundingClientRect(); if(r.top<navEl.offsetHeight+8||r.bottom>innerHeight-player.offsetHeight-8) c.scrollIntoView({block:'center',behavior:smooth()}); }
+}
+async function plGo(i,scroll=true){
+  stopAudio(); const tok=++PL.tok;
+  PL.i=Math.max(0,Math.min(i,PL.items.length-1)); PL.on=true; plUI(scroll); plSession();
+  const it=PL.items[PL.i]; if(!it||!decoder()){ PL.on=false; plUI(); return; }
+  try{
+    const url=await clipUrl(it.f,it.s,it.e);
+    if(tok!==PL.tok) return;
+    const nx=PL.items[PL.i+1]; if(nx) clipUrl(nx.f,nx.s,nx.e).catch(()=>{}); // have the next word ready
+    await playUrl(url,()=>{
+      if(PL.i+1<PL.items.length) PL.timer=setTimeout(()=>{ if(tok===PL.tok) plGo(PL.i+1); },GAP);
+      else { PL.on=false; plUI(); }
+    });
+  }catch(e){
+    if(tok!==PL.tok) return;
+    PL.on=false; plUI();
+    plMeta.textContent=e&&e.name==='NotAllowedError'?'Tap play to start':'Couldn’t load the recording. Tap play to retry';
+  }
+}
+// lock screen and headphone controls
+function plSession(){
+  if(!('mediaSession' in navigator)) return;
+  try{
+    navigator.mediaSession.metadata=new MediaMetadata({title:`Lesson ${PL.n} · word ${PL.i+1} of ${PL.items.length}`,artist:'Sheikh Muhammad Nur Haqqani',album:'Nooraniyah Companion',
+      artwork:[{src:'icon-512.png',sizes:'512x512',type:'image/png'}]});
+    navigator.mediaSession.setActionHandler('play',()=>plGo(PL.i));
+    navigator.mediaSession.setActionHandler('pause',()=>stopAudio());
+    navigator.mediaSession.setActionHandler('previoustrack',()=>plGo(PL.i-1));
+    navigator.mediaSession.setActionHandler('nexttrack',()=>plGo(PL.i+1));
+  }catch(e){}
+}
+function plOpen(n){
+  if(PL.n!==n){ PL.n=n; PL.items=lessonItems(n); PL.i=0; }
+  else if(PL.i>=PL.items.length-1) PL.i=0;
+  player.hidden=false; document.body.classList.add('pl-on');
+  closePanel(); plGo(PL.i);
+}
+function plClose(){ stopAudio(); player.hidden=true; document.body.classList.remove('pl-on'); plUI(); }
+plPP.addEventListener('click',()=>{ if(PL.on) stopAudio(); else plGo(PL.i); });
+player.querySelector('.pv').addEventListener('click',()=>plGo(PL.i-1));
+player.querySelector('.nx').addEventListener('click',()=>plGo(PL.i+1));
+player.querySelector('.cl').addEventListener('click',plClose);
+// dragging the bar previews the word; letting go plays from there
+plSeek.addEventListener('input',()=>{ stopAudio(); PL.i=+plSeek.value; plUI(true); });
+plSeek.addEventListener('change',()=>plGo(+plSeek.value));
+
 /* symbol cards with coloured marks */
 const SYMG=[['Short vowels and sukoon',[...SYMS[0][1],...SYMS[2][1]]],SYMS[1],SYMS[3],['Leen, silent and special',[...SYMS[4][1],...SYMS[5][1]]]];
-document.getElementById('symgroups').innerHTML=SYMG.map(([h,list])=>`<div class="symgroup"><h3>${h}</h3><div class="syms">${list.map(([ex,n,c,snd,hook])=>
- `<div class="sym"><span class="ex">${layered(ex)}</span><b class="c-${c}">${n}</b><span class="snd">${snd}</span><span class="hook">${hook}</span></div>`).join('')}</div></div>`).join('');
+document.getElementById('symgroups').innerHTML=SYMG.map(([h,list],i)=>`<details class="symgroup fold"${i===0?' open':OPEN}><summary><h3>${h}</h3></summary><div class="syms">${list.map(([ex,n,c,snd,hook])=>
+ `<div class="sym"><span class="ex">${layered(ex)}</span><b class="c-${c}">${n}</b><span class="snd">${snd}</span><span class="hook">${hook}</span></div>`).join('')}</div></details>`).join('');
 
 /* ---------- lessons ---------- */
 function cellsFor(row){ return row.split(' ').map(t=>{const wide=t.startsWith('*'); t=t.replace(/^\*/,'').replace(/_/g,' '); return {t,wide};}); }
@@ -699,7 +983,7 @@ const out=LESSONS.map(Ls=>{
     const rows=p.rows.map((r,ri)=>{
       const colRow=((BOOKCOL[p.pdf]||[])[off+ri]||'').split(' ');
       const af=CLIPS[Ls.n]?` data-af="${fileOf(Ls.n,lr)}"`:''; lr++;
-      return `<div class="row"${af}><div class="cells" style="--cols:${cols}">${cellsFor(r).map((c,ci)=>{
+      return `<div class="row"${af}><div class="cells" style="--cols:${cols};--pcols:${PSPLIT.has(Ls.n)?Math.ceil(cols/2):cols}">${cellsFor(r).map((c,ci)=>{
         if(c.t==='✤') return `<span class="cell blank${c.wide?' wide':''}" aria-hidden="true">✤</span>`;
         const id=++sid; store.set(id,{t:c.t,mode:Ls.mode,n:Ls.n,k:kk++});
         const col=colRow[ci]||'k', txt=c.t.replace(/~/g,ZWJ);
@@ -710,7 +994,7 @@ const out=LESSONS.map(Ls=>{
     const banner=pi===0?`<div class="banner" tabindex="0" aria-label="Lesson ${Ls.n} title: ${esc(TR[Ls.n])}, ${esc(LIT[Ls.n])}"><div class="lno">الدَّرْسُ ${ORD[Ls.n]}</div><div class="ttl"><span>${Ls.ar}</span></div>
         <div class="tip" role="tooltip"><i>Ad-darsu ${ORD_TR[Ls.n]} · ${TR[Ls.n]}</i><span>“Lesson ${ORD_EN[Ls.n]}: ${LIT[Ls.n]}”</span><small>Green label = the lesson number. Red ribbon = the lesson title.</small></div></div>
       <div class="entitle"><span><b>Lesson ${Ls.n}:</b> ${Ls.en}</span><i>${TR[Ls.n]}</i></div>`:'';
-    return `<div class="book" style="--fs:${FS[Ls.n]||Ls.fs};--fsq:${FSQ[Ls.n]||'99cqi'}"><div class="sheet">${banner}<div class="grid">${rows}</div>${p.foot?`<div class="foot">${p.foot}</div>`:''}
+    return `<div class="book${PSPLIT.has(Ls.n)?' split':''}" style="--fs:${FS[Ls.n]||Ls.fs};--fsq:${FSQ[Ls.n]||'99cqi'};--fsm:${FSM[Ls.n]}"><div class="sheet">${banner}<div class="grid">${rows}</div>${p.foot?`<div class="foot">${p.foot}</div>`:''}
       <span class="pdfp">PDF p.${p.pdf}</span><span class="pno" title="Printed page ${p.book}">${arNum(p.book)}</span></div></div>`;
   }).join('');
   const ex=Ls.ex?`<div class="examples">${Ls.ex.map((w,i)=>`<article class="excard">${breakdownHTML(w,{title:'Example '+(i+1)})}</article>`).join('')}</div>`:'';
@@ -720,7 +1004,9 @@ const out=LESSONS.map(Ls=>{
       <div><div class="eyebrow"><span>Lesson ${ORD_EN[Ls.n]} · PDF p.${rng(pdfs)}</span><span class="ar">الدَّرْسُ ${ORD[Ls.n]}</span></div>
         <h2>${Ls.en}</h2><div class="tr">${TR[Ls.n]}</div></div>
       <div class="media">${listen}${vid}</div></div>
-    <div class="lintro"><ul class="notes">${Ls.notes.map(x=>`<li>${x}</li>`).join('')}</ul>${ex}</div>
+    <details class="fold lfold"${OPEN}><summary>Notes${Ls.ex?' and examples':''} <small>${Ls.notes.length} note${Ls.notes.length>1?'s':''}${Ls.ex?` · ${Ls.ex.length} example${Ls.ex.length>1?'s':''}`:''}</small></summary>
+      <div class="lintro"><ul class="notes">${Ls.notes.map(x=>`<li>${x}</li>`).join('')}</ul>${ex}</div></details>
+    ${CLIPS[Ls.n]?`<div class="lplay"><button type="button" class="playall" data-n="${Ls.n}"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg></span>Play the whole lesson</button><small>Each ${Ls.mode==='letter'?'letter':'word'} once, read whole · Sheikh Haqqani</small></div>`:''}
     <div class="spread">${pages}</div></section>`;
 }).join('');
 document.getElementById('lessonsout').innerHTML=out;
@@ -731,11 +1017,22 @@ nav.innerHTML=`<a href="#symbols" class="nb">Symbols</a><a href="#rules" class="
 const links=[...nav.querySelectorAll('a')];
 const secs=links.map(a=>document.getElementById(a.getAttribute('href').slice(1)));
 const navEl=document.querySelector('nav.lessons');
+// phones: one button names the current section and opens the full list
+const jump=document.getElementById('jump'), jumpMenu=document.getElementById('jumpmenu');
+const SEC=[['Symbols','The marks and their colours','ـَ'],['Key rules','Heavy letters, qalqala, sun and moon…','✤'],...LESSONS.map(l=>[`Lesson ${l.n}`,l.en,l.n])];
+document.getElementById('jumplist').innerHTML=SEC.map(([t,s,o],i)=>`<li><a href="${links[i].getAttribute('href')}"><span class="o${i<2?' s':''}" aria-hidden="true">${o}</span><span><b>${esc(t)}</b><small>${esc(s)}</small></span></a></li>`).join('');
+const jumpLinks=[...jumpMenu.querySelectorAll('a')];
+function setJump(open){ jumpMenu.hidden=!open; jump.setAttribute('aria-expanded',String(open)); if(open){ const a=jumpLinks[cur]; a&&a.scrollIntoView({block:'nearest'}); } }
+jump.addEventListener('click',()=>setJump(jumpMenu.hidden));
+jumpMenu.addEventListener('click',e=>{ if(e.target.closest('a')) setJump(false); });
+document.addEventListener('click',e=>{ if(!jumpMenu.hidden&&!e.target.closest('nav.lessons')) setJump(false); });
 const navH=()=>document.documentElement.style.setProperty('--navh',navEl.offsetHeight+'px');
 let ticking=false, cur=0;
 function spy(){ticking=false;cur=0;const lim=navEl.offsetHeight+60;secs.forEach((s,i)=>{if(s.offsetParent&&s.getBoundingClientRect().top<lim)cur=i});
   links.forEach((a,i)=>{a.classList.toggle('on',i===cur); if(i===cur)a.setAttribute('aria-current','true'); else a.removeAttribute('aria-current')});
-  const on=links[cur]; if(on){const r=on.getBoundingClientRect(),pr=nav.getBoundingClientRect(); if(r.left<pr.left||r.right>pr.right) nav.scrollLeft+=r.left-pr.left-40;}
+  jumpLinks.forEach((a,i)=>{ if(i===cur) a.setAttribute('aria-current','true'); else a.removeAttribute('aria-current'); });
+  jump.querySelector('.jn').textContent=SEC[cur][0]; jump.querySelector('.jt').textContent=cur>1?SEC[cur][1]:'';
+  const on=links[cur]; if(on&&on.offsetParent){const r=on.getBoundingClientRect(),pr=nav.getBoundingClientRect(); if(r.left<pr.left||r.right>pr.right) nav.scrollLeft+=r.left-pr.left-40;}
   try{localStorage.setItem('nq-sec',secs[cur].id)}catch(e){}}
 addEventListener('scroll',()=>{if(!ticking){ticking=true;requestAnimationFrame(spy)}},{passive:true});
 
@@ -776,7 +1073,10 @@ function place(){
 document.getElementById('main').addEventListener('click',e=>{
   const hb=e.target.closest('.hear-btn'); if(hb){ playClip(hb); return; }
   if(e.target.closest('.expand .x')){ const c=current; closePanel(); c&&c.focus(); return; }
+  const pa=e.target.closest('.playall'); if(pa){ plOpen(+pa.dataset.n); return; }
   const b=e.target.closest('button.cell'); if(!b) return;
+  // while the lesson player is open, tapping a word in that lesson skips the player to it
+  if(!player.hidden){ const j=PL.items.findIndex(it=>it.ids.includes(+b.dataset.id)); if(j>=0){ plGo(j,false); return; } }
   if(b===current){ closePanel(); return; }
   closePanel();
   const d=store.get(+b.dataset.id); if(!d) return;
@@ -791,7 +1091,11 @@ if('IntersectionObserver' in window){
   const io=new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){ fetchRow(e.target.dataset.af).catch(()=>{}); io.unobserve(e.target); } }),{rootMargin:'300px 0px'});
   document.querySelectorAll('.row[data-af]').forEach(r=>io.observe(r));
 }
-addEventListener('keydown',e=>{if(e.key==='Escape'&&panel){const c=current;closePanel();c&&c.focus()}});
+addEventListener('keydown',e=>{
+  if(e.key!=='Escape') return;
+  if(!jumpMenu.hidden){ setJump(false); jump.focus(); return; }
+  if(panel){const c=current;closePanel();c&&c.focus()}
+});
 })();
 </script>
 <script>
