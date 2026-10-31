@@ -334,7 +334,13 @@ details.lfold>summary::before{display:inline-block;margin-right:10px;vertical-al
 .pl-ctl .pp .pz,.pl-ctl .pp.on .sp{display:none}.pl-ctl .pp.on .pz{display:block}
 .pl-ctl .cl{border:0;background:transparent;width:36px}
 .pl-ctl button:focus-visible{outline:3px solid var(--link);outline-offset:2px}
-.pl-seek{grid-column:1/-1;width:100%;margin:0;accent-color:var(--b-green);height:28px}
+.pl-seek{width:100%;margin:0;accent-color:var(--b-green);height:28px}
+/* speed: 0.5× to 2×, a tenth at a time */
+.pl-rate{display:flex;align-items:center;justify-self:end;border:1px solid #BFB58A;background:#FFFDF1}
+.pl-rate button{appearance:none;width:40px;height:36px;padding:0;border:0;background:transparent;color:var(--b-ink);font:700 1.25rem/1 var(--serif);cursor:pointer}
+.pl-rate button:disabled{color:#BFB58A;cursor:default}
+.pl-rate button:focus-visible{outline:3px solid var(--link);outline-offset:-3px}
+.pl-rate output{min-width:3.4em;text-align:center;font-size:.95rem;font-weight:700;font-variant-numeric:tabular-nums;border-inline:1px solid #E2D9AE;line-height:36px}
 body.pl-on{padding-bottom:calc(140px + env(safe-area-inset-bottom,0px))}
 
 /* ---------- phones ---------- */
@@ -443,6 +449,7 @@ body.pl-on{padding-bottom:calc(140px + env(safe-area-inset-bottom,0px))}
     <button type="button" class="cl" aria-label="Close the player"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button>
   </div>
   <input type="range" class="pl-seek" min="0" max="0" step="1" value="0" aria-label="Skip to word">
+  <div class="pl-rate" role="group" aria-label="Speed"><button type="button" class="sl" aria-label="Slower">−</button><output aria-live="polite">1.0×</output><button type="button" class="sf" aria-label="Faster">+</button></div>
 </div></div>
 
 <footer class="wrap">
@@ -782,7 +789,7 @@ const CLIPS=/*CLIPS*/{"1":[[0,0.08,1.18],[0,1.48,2.65],[0,2.95,4.09],[0,4.4,5.6]
 const HEAR=/*HEAR*/{"1":"Hear the name","2":"Hear the letter names","3":"Hear it read","4":"Hear it spelled out","5":"Hear it spelled out","6":"Hear it read","7":"Hear it spelled out","8":"Hear it spelled out","9":"Hear it read","10":"Hear it spelled out"}/*END*/;
 const clipOf=d=>(CLIPS[d.n]||[])[d.k]||null;
 const fileOf=(n,r)=>`audio/l${n}r${String(r).padStart(2,'0')}.mp3`;
-const PL={n:0,items:[],i:0,on:false,timer:0,tok:0}; // the whole-lesson player
+const PL={n:0,items:[],i:0,on:false,timer:0,tok:0,rate:1}; // the whole-lesson player
 /* Playback goes through one <audio> element, the way music players work, not through Web Audio:
    phones then play it even with the ring/silent switch on, and keep playing with the screen locked.
    Each row file is decoded once, and a clip is cut from it as a small WAV, so it starts and stops exactly on the word. */
@@ -822,10 +829,11 @@ async function clipUrl(f,s,e){
   return wavs.get(key);
 }
 // start a clip; onend runs only if it plays to the end (not if something else stops it)
-function playUrl(url,onend){
+// rate: the lesson player's speed; single words always play at normal speed
+function playUrl(url,onend,rate=1){
   const t=++playTok;
   AEL.onended=()=>{ if(t===playTok) onend&&onend(); };
-  AEL.src=url;
+  AEL.src=url; AEL.defaultPlaybackRate=AEL.playbackRate=rate; AEL.preservesPitch=AEL.webkitPreservesPitch=true;
   const p=AEL.play(); if(p&&p.then) p.then(()=>{primed=true},()=>{});
   return p;
 }
@@ -924,9 +932,9 @@ async function plGo(i,scroll=true){
     if(tok!==PL.tok) return;
     const nx=PL.items[PL.i+1]; if(nx) clipUrl(nx.f,nx.s,nx.e).catch(()=>{}); // have the next word ready
     await playUrl(url,()=>{
-      if(PL.i+1<PL.items.length) PL.timer=setTimeout(()=>{ if(tok===PL.tok) plGo(PL.i+1); },GAP);
+      if(PL.i+1<PL.items.length) PL.timer=setTimeout(()=>{ if(tok===PL.tok) plGo(PL.i+1); },GAP/PL.rate);
       else { PL.on=false; plUI(); }
-    });
+    },PL.rate);
   }catch(e){
     if(tok!==PL.tok) return;
     PL.on=false; plUI();
@@ -959,6 +967,17 @@ player.querySelector('.cl').addEventListener('click',plClose);
 // dragging the bar previews the word; letting go plays from there
 plSeek.addEventListener('input',()=>{ stopAudio(); PL.i=+plSeek.value; plUI(true); });
 plSeek.addEventListener('change',()=>plGo(+plSeek.value));
+// speed, remembered between visits; changing it mid-word speeds up the word already playing
+const plRate=player.querySelector('.pl-rate output'), plSl=player.querySelector('.sl'), plSf=player.querySelector('.sf');
+function setRate(r){
+  PL.rate=Math.round(Math.max(.5,Math.min(2,r))*10)/10;
+  plRate.textContent=PL.rate.toFixed(1)+'×'; plSl.disabled=PL.rate<=.5; plSf.disabled=PL.rate>=2;
+  if(PL.on) AEL.playbackRate=PL.rate;
+  try{localStorage.setItem('nq-rate',PL.rate)}catch(e){}
+}
+plSl.addEventListener('click',()=>setRate(PL.rate-.1));
+plSf.addEventListener('click',()=>setRate(PL.rate+.1));
+try{ setRate(+localStorage.getItem('nq-rate')||1); }catch(e){ setRate(1); }
 
 /* symbol cards with coloured marks */
 const SYMG=[['Short vowels and sukoon',[...SYMS[0][1],...SYMS[2][1]]],SYMS[1],SYMS[3],['Leen, silent and special',[...SYMS[4][1],...SYMS[5][1]]]];
