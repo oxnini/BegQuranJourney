@@ -94,7 +94,7 @@ h1,h2,h3{text-wrap:balance;line-height:1.2;margin:0;font-family:var(--serif);fon
 .cells{flex:1;display:grid;grid-template-columns:repeat(var(--cols),minmax(0,1fr));min-width:0}
 .cell{position:relative;appearance:none;border:0;border-inline-start:1px solid var(--grid);color:var(--ink-k);
   background:repeating-linear-gradient(90deg,var(--stripe) 0 2px,transparent 2px 6px),var(--paper);
-  font-family:var(--ar);font-size:min(var(--fs,2rem),var(--fsq,99cqi));line-height:2.25;padding:6px 2px 4px;cursor:pointer;overflow:hidden;min-width:0;transition:background-color .12s}
+  font-family:var(--ar);font-size:min(var(--fs,2rem),var(--fsq,99cqi));line-height:2.25;padding:6px 2px 8px;cursor:pointer;overflow:hidden;min-width:0;transition:background-color .12s}
 .cell:first-child{border-inline-start:0}
 .cell:hover{background-color:#FFF0A8}
 .cell.on{background:var(--sel);box-shadow:inset 0 0 0 3px var(--b-red)}
@@ -354,7 +354,8 @@ body.pl-on{padding-bottom:calc(140px + env(safe-area-inset-bottom,0px))}
   .book{padding:6px;margin-inline:-10px}
   .book>.sheet{padding:8px 6px 26px}
   .book{--fsq:99cqi!important}
-  .cell{font-size:var(--fsm,var(--fs,2rem));line-height:1.8}
+  /* extra room underneath: a final ع or م drops low, and its kasratain sits below that, so it was being cut off */
+  .cell{font-size:var(--fsm,var(--fs,2rem));line-height:1.8;padding-bottom:calc(4px + .3em)}
   .cell.letter{padding:20px 2px 16px;line-height:1.6}
   /* a printed row wraps onto two lines: thin lines between words, a heavier line between book rows */
   .cells{grid-template-columns:repeat(var(--pcols,var(--cols)),minmax(0,1fr))}
@@ -845,29 +846,55 @@ function decodeRow(f){
   }
   return dec.get(f);
 }
-// cut [s,e] seconds out of a decoded row as a 16-bit mono WAV, with 6 ms fades so it doesn't click
-function wavOf(buf,s,e){
-  const sr=buf.sampleRate, ch=buf.getChannelData(0), a=Math.max(0,Math.round(s*sr)), b=Math.min(ch.length,Math.round(e*sr)), n=Math.max(0,b-a), fade=Math.min(Math.round(sr*.006),n>>1);
+/* Change speed without changing pitch (WSOLA: overlap 30 ms slices, each nudged to line up with the last).
+   The lesson player bakes its speed into the clip like this instead of setting playbackRate:
+   Safari's own time-stretcher holds back a little sound, which then leaked into the next word, so a word ran on and the next seemed to start twice. */
+function stretch(x,r,sr){
+  if(Math.abs(r-1)<.01) return x;
+  const N=Math.round(sr*.03)&~1, H=N>>1, tol=Math.round(sr*.008), len=Math.round(x.length/r);
+  const y=new Float32Array(len+N), wsum=new Float32Array(len+N), w=new Float32Array(N);
+  for(let i=0;i<N;i++) w[i]=.5-.5*Math.cos(2*Math.PI*i/N);
+  let prev=-1;
+  for(let o=0;o<len;o+=H){
+    const nom=Math.round(o*r); let at=Math.min(nom,x.length-N);
+    if(at<0) break;
+    if(prev>=0&&prev+H+N<=x.length){ // pick the slice that best continues the previous one
+      let best=-Infinity;
+      for(let p=Math.max(0,nom-tol),hi=Math.min(x.length-N,nom+tol);p<=hi;p++){
+        let c=0; for(let i=0;i<N;i+=2) c+=x[p+i]*x[prev+H+i];
+        if(c>best){ best=c; at=p; }
+      }
+    }
+    for(let i=0;i<N;i++){ y[o+i]+=x[at+i]*w[i]; wsum[o+i]+=w[i]; }
+    prev=at;
+  }
+  for(let i=0;i<len;i++) if(wsum[i]>1e-3) y[i]/=wsum[i];
+  return y.subarray(0,len);
+}
+// cut [s,e] seconds out of a decoded row as a 16-bit mono WAV at the given speed, with 6 ms fades so it doesn't click
+function wavOf(buf,s,e,rate=1){
+  const sr=buf.sampleRate, src=buf.getChannelData(0);
+  const ch=stretch(src.subarray(Math.max(0,Math.round(s*sr)),Math.min(src.length,Math.round(e*sr))),rate,sr), a=0, n=ch.length, fade=Math.min(Math.round(sr*.006),n>>1);
   const out=new DataView(new ArrayBuffer(44+n*2)), str=(o,t)=>{for(let i=0;i<t.length;i++)out.setUint8(o+i,t.charCodeAt(i))};
   str(0,'RIFF');out.setUint32(4,36+n*2,true);str(8,'WAVEfmt ');out.setUint32(16,16,true);out.setUint16(20,1,true);out.setUint16(22,1,true);
   out.setUint32(24,sr,true);out.setUint32(28,sr*2,true);out.setUint16(32,2,true);out.setUint16(34,16,true);str(36,'data');out.setUint32(40,n*2,true);
   for(let i=0;i<n;i++){ let v=ch[a+i]; if(i<fade) v*=i/fade; else if(i>=n-fade) v*=(n-1-i)/fade; v=Math.max(-1,Math.min(1,v)); out.setInt16(44+i*2,v<0?v*0x8000:v*0x7FFF,true); }
   return URL.createObjectURL(new Blob([out],{type:'audio/wav'}));
 }
-async function clipUrl(f,s,e){
-  const key=f+'|'+s+'|'+e;
+async function clipUrl(f,s,e,rate=1){
+  const key=f+'|'+s+'|'+e+'|'+rate;
   if(!wavs.has(key)){
-    wavs.set(key,decodeRow(f).then(buf=>wavOf(buf,s,e)).catch(err=>{wavs.delete(key);throw err}));
+    wavs.set(key,decodeRow(f).then(buf=>wavOf(buf,s,e,rate)).catch(err=>{wavs.delete(key);throw err}));
     if(wavs.size>80){ const k=wavs.keys().next().value; wavs.get(k).then(u=>URL.revokeObjectURL(u),()=>{}); wavs.delete(k); }
   }
   return wavs.get(key);
 }
 // start a clip; onend runs only if it plays to the end (not if something else stops it)
-// rate: the lesson player's speed; single words always play at normal speed
-function playUrl(url,onend,rate=1){
+// always at normal rate: any speed change is already baked into the clip (see stretch)
+function playUrl(url,onend){
   const t=++playTok;
   AEL.onended=()=>{ if(t===playTok) onend&&onend(); };
-  AEL.src=url; AEL.defaultPlaybackRate=AEL.playbackRate=rate; AEL.preservesPitch=AEL.webkitPreservesPitch=true;
+  AEL.src=url; AEL.defaultPlaybackRate=AEL.playbackRate=1;
   const p=AEL.play(); if(p&&p.then) p.then(()=>{primed=true},()=>{});
   return p;
 }
@@ -962,13 +989,13 @@ async function plGo(i,scroll=true){
   PL.i=Math.max(0,Math.min(i,PL.items.length-1)); PL.on=true; plUI(scroll); plSession();
   const it=PL.items[PL.i]; if(!it||!decoder()){ PL.on=false; plUI(); return; }
   try{
-    const url=await clipUrl(it.f,it.s,it.e);
+    const url=await clipUrl(it.f,it.s,it.e,PL.rate);
     if(tok!==PL.tok) return;
-    const nx=PL.items[PL.i+1]; if(nx) clipUrl(nx.f,nx.s,nx.e).catch(()=>{}); // have the next word ready
+    const nx=PL.items[PL.i+1]; if(nx) clipUrl(nx.f,nx.s,nx.e,PL.rate).catch(()=>{}); // have the next word ready
     await playUrl(url,()=>{
       if(PL.i+1<PL.items.length) PL.timer=setTimeout(()=>{ if(tok===PL.tok) plGo(PL.i+1); },GAP/PL.rate);
       else { PL.on=false; plUI(); }
-    },PL.rate);
+    });
   }catch(e){
     if(tok!==PL.tok) return;
     PL.on=false; plUI();
@@ -1001,12 +1028,11 @@ player.querySelector('.cl').addEventListener('click',plClose);
 // dragging the bar previews the word; letting go plays from there
 plSeek.addEventListener('input',()=>{ stopAudio(); PL.i=+plSeek.value; plUI(true); });
 plSeek.addEventListener('change',()=>plGo(+plSeek.value));
-// speed, remembered between visits; changing it mid-word speeds up the word already playing
+// speed, remembered between visits; a change applies from the next word
 const plRate=player.querySelector('.pl-rate output'), plSl=player.querySelector('.sl'), plSf=player.querySelector('.sf');
 function setRate(r){
   PL.rate=Math.round(Math.max(.5,Math.min(2,r))*10)/10;
   plRate.textContent=PL.rate.toFixed(1)+'×'; plSl.disabled=PL.rate<=.5; plSf.disabled=PL.rate>=2;
-  if(PL.on) AEL.playbackRate=PL.rate;
   try{localStorage.setItem('nq-rate',PL.rate)}catch(e){}
 }
 plSl.addEventListener('click',()=>setRate(PL.rate-.1));
