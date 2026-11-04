@@ -96,6 +96,7 @@ h1,h2,h3{text-wrap:balance;line-height:1.2;margin:0;font-family:var(--serif);fon
   background:repeating-linear-gradient(90deg,var(--stripe) 0 2px,transparent 2px 6px),var(--paper);
   font-family:var(--ar);font-size:min(var(--fs,2rem),var(--fsq,99cqi));line-height:2.25;padding:6px 2px 8px;cursor:pointer;overflow:hidden;min-width:0;transition:background-color .12s}
 .cell:first-child{border-inline-start:0}
+.cells[style*="--fitfs"]>.cell{font-size:var(--fitfs)!important}
 .cell:hover{background-color:#FFF0A8}
 .cell.on{background:var(--sel);box-shadow:inset 0 0 0 3px var(--b-red)}
 .cell.wide{grid-column:span 2}
@@ -1091,6 +1092,23 @@ const out=LESSONS.map(Ls=>{
     <div class="spread">${pages}</div></section>`;
 }).join('');
 document.getElementById('lessonsout').innerHTML=out;
+
+/* ---------- keep every word whole ----------
+   On a narrow phone a long word (عَسۡعَسَ, يُوَسۡوِسُ) can be wider than its box, and the box clips it.
+   Where that happens, shrink that one printed row just enough for its widest word to fit, so the row stays even. */
+function fitRows(){
+  const rows=[...document.querySelectorAll('#lessonsout .cells')];
+  rows.forEach(r=>r.style.removeProperty('--fitfs'));
+  // measure every row first, then write, so the browser lays the page out once
+  const need=rows.map(r=>{let k=1, fs=0;
+    for(const c of r.children){ if(!c.clientWidth||c.classList.contains('blank')) continue;
+      const cs=getComputedStyle(c), pad=parseFloat(cs.paddingLeft)+parseFloat(cs.paddingRight); fs=parseFloat(cs.fontSize);
+      if(c.scrollWidth>c.clientWidth+1) k=Math.min(k,(c.clientWidth-pad-2)/(c.scrollWidth-pad));}
+    return [r,k,fs];});
+  for(const [r,k,fs] of need) if(k<1&&fs) r.style.setProperty('--fitfs',Math.floor(fs*k*10)/10+'px');
+}
+let fitT=0; const refit=()=>{clearTimeout(fitT);fitT=setTimeout(fitRows,120)};
+fitRows(); if(document.fonts) document.fonts.ready.then(fitRows); addEventListener('resize',refit); addEventListener('load',fitRows);
 
 /* ---------- nav ---------- */
 const nav=document.getElementById('nav');
