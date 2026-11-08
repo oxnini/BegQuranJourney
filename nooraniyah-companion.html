@@ -121,7 +121,9 @@ h1,h2,h3{text-wrap:balance;line-height:1.2;margin:0;font-family:var(--serif);fon
 .ly{grid-area:1/1}
 .ly.base{color:inherit}
 .ly.c-fatha{color:var(--m-fatha)}.ly.c-kasra{color:var(--m-kasra)}.ly.c-damma{color:var(--m-damma)}.ly.c-sukoon{color:var(--m-sukoon)}
-.ly.c-tan{color:var(--m-tan)}.ly.c-madd{color:var(--m-madd)}.ly.c-silent{color:var(--m-silent)}.ly.c-shadda{color:var(--m-shadda)}
+.ly.c-bookred{color:var(--ink-r)}
+/* Lessons 15–16 copies: calt off, because it adds a spacer after ب only when ب carries a mark above, which the black copy lacks */
+.lyr.shr .ly{font-feature-settings:"cv62" 1,"calt" 0}.ly.c-tan{color:var(--m-tan)}.ly.c-madd{color:var(--m-madd)}.ly.c-silent{color:var(--m-silent)}.ly.c-shadda{color:var(--m-shadda)}
 .foot{font-size:.88rem;color:#3F3C2E;padding:8px 6px 0;border-top:1px dashed #BFB58A;margin-top:8px}
 .foot .ar{font-size:1.2rem;color:var(--b-red)}
 
@@ -822,7 +824,9 @@ const BOOKCOL={
 const AR_NAME={'ا':'ألف','ب':'با','ت':'تا','ث':'ثا','ج':'جيم','ح':'حا','خ':'خا','د':'دال','ذ':'ذال','ر':'را','ز':'زا','س':'سين','ش':'شين','ص':'صاد','ض':'ضاد','ط':'طا','ظ':'ظا','ع':'عين','غ':'غين','ف':'فا','ق':'قاف','ك':'كاف','ل':'لام','م':'ميم','ن':'نون','و':'واو','ه':'ها','ء':'همزة','ى':'يا','ے':'يا'};
 const ORD=['','الأَوَّلُ','الثَّانِي','الثَّالِثُ','الرَّابِعُ','الخَامِسُ','السَّادِسُ','السَّابِعُ','الثَّامِنُ','التَّاسِعُ','العَاشِرُ','الحَادِيَ عَشَرَ','الثَّانِيَ عَشَرَ','الثَّالِثَ عَشَرَ','الرَّابِعَ عَشَرَ','الخَامِسَ عَشَرَ','السَّادِسَ عَشَرَ','الأَخِيرُ'];
 const arNum=n=>String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
-const LAYERED=new Set([4,5,7,8,10,12,15,16]);
+const LAYERED=new Set([4,5,7,8,10,12]);
+// Lessons 15–16: the book prints the letters black and each shadda, with the vowel on that doubled letter, in red.
+const SHRED=new Set([15,16]);
 const ORD_TR=['','al-awwal','ath-thānī','ath-thālith','ar-rābiʿ','al-khāmis','as-sādis','as-sābiʿ','ath-thāmin','at-tāsiʿ','al-ʿāshir','al-ḥādī ʿashar','ath-thānī ʿashar','ath-thālith ʿashar','ar-rābiʿ ʿashar','al-khāmis ʿashar','as-sādis ʿashar','al-akhīr'];
 const ORD_EN=['','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen, the last'];
 const TR={1:'Ḥurūf al-hijāʾ al-mufrada',2:'Ḥurūf al-hijāʾ al-murakkaba',3:'Al-ḥurūf al-muqaṭṭaʿa',4:'Al-ḥurūf al-mutaḥarrika (al-ḥarakāt)',5:'Al-ḥurūf al-munawwana (at-tanwīn)',
@@ -857,6 +861,26 @@ function layered(text){
   const base=cl.map(bare).join('');
   return `<span class="lyr" data-t="${esc(text)}">${cats.map(cat=>`<span class="ly c-${cat}" aria-hidden="true">${esc(cl.map(g=>catOf(g)===cat?g.join(''):bare(g)).join(''))}</span>`).join('')}<span class="ly base">${esc(base)}</span></span>`;
 }
+
+// The book's own colouring for Lessons 15–16: letters black; each shadda with the vowel on that doubled letter, and the madd sign, red.
+// Underneath: the whole word in red (so every mark sits where the font puts it). On top: the letters and the other marks in black.
+const SHMARK=new Set([F,K,D,FT,KT,DT]);
+function shaddaRed(text){
+  const t=text.replace(/آ/g,'ا'+MAD); // split آ so its madd can take its own colour
+  const cl=[]; [...t].forEach(c=>{ if(CAT[c]&&cl.length) cl[cl.length-1].push(c); else cl.push([c]); });
+  // Red: a shadda with the vowel (and small alif or madd) on that letter, and a madd with the small alif under it
+  // (the font joins that small alif to the madd; the book has the small alif black).
+  const isSh=g=>c=>c===SH||(g.includes(SH)&&(SHMARK.has(c)||c===DAG||c===MAD));
+  const isMd=g=>c=>!g.includes(SH)&&(c===MAD||(c===DAG&&g.includes(MAD)));
+  const red=g=>c=>isSh(g)(c)||isMd(g)(c);
+  if(!cl.some(g=>g.some(red(g)))) return esc(text);
+  const under=cl.map(g=>g.filter(c=>!CAT[c]||red(g)(c)).join('')).join('');
+  const top=cl.map(g=>g.filter(c=>!red(g)(c)).join('')).join('');
+  // Backup black copy that keeps each shadda (it sits exactly over the red one): used if a browser shapes the copies differently.
+  const alt=cl.map(g=>g.filter(c=>c===SH||!red(g)(c)).join('')).join('');
+  return `<span class="lyr shr" data-t="${esc(text)}" data-alt="${esc(alt)}"><span class="ly c-bookred" aria-hidden="true">${esc(under)}</span><span class="ly base">${esc(top)}</span></span>`;
+}
+const marked=(n,t)=>LAYERED.has(n)?layered(t):SHRED.has(n)?shaddaRed(t):esc(t);
 
 /* ---------- rendering helpers ---------- */
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -1051,7 +1075,7 @@ function lessonItems(n){
 }
 function plUI(scroll){
   const it=PL.items[PL.i];
-  plWord.innerHTML=it?(LAYERED.has(PL.n)?layered(it.t.replace(/~/g,ZWJ)):esc(it.t.replace(/~/g,''))):'';
+  plWord.innerHTML=it?((LAYERED.has(PL.n)||SHRED.has(PL.n))?marked(PL.n,it.t.replace(/~/g,ZWJ)):esc(it.t.replace(/~/g,''))):'';
   plMeta.innerHTML=`<b>Lesson ${PL.n}</b> · ${PL.i+1} of ${PL.items.length}`;
   plSeek.max=Math.max(0,PL.items.length-1); plSeek.value=PL.i;
   plPP.classList.toggle('on',PL.on); plPP.setAttribute('aria-label',PL.on?'Pause':'Play');
@@ -1148,7 +1172,7 @@ const out=LESSONS.map(Ls=>{
         if(c.t==='✤') return `<span class="cell blank${c.wide?' wide':''}" aria-hidden="true">✤</span>`;
         const id=++sid; store.set(id,{t:c.t,mode:Ls.mode,n:Ls.n,k:kk++});
         const col=colRow[ci]||'k', txt=c.t.replace(/~/g,ZWJ);
-        let inner=LAYERED.has(Ls.n)?layered(txt):esc(txt);
+        let inner=marked(Ls.n,txt);
         if(Ls.mode==='letter') inner+=`<span class="nm">${esc(AR_NAME[c.t]||'')}</span><span class="en">${esc(nm(c.t))}</span>`;
         return `<button type="button" class="cell ${col}${c.wide?' wide':''}${Ls.mode==='letter'?' letter':''}" data-id="${id}" lang="ar" aria-label="${esc(c.t)}, show spelling">${inner}</button>`;}).join('')}</div></div>`;
     }).join('');
@@ -1220,6 +1244,13 @@ const MARKRE=/[ً-ٰٟۖ-ۭ]/;
 function fixLayers(root){
   for(const l of root.querySelectorAll('.lyr:not([data-ok])')){
     l.dataset.ok='1';
+    if(l.classList.contains('shr')){
+      // compare the inked width of each copy (WebKit may ignore calt:0, which adds a spacer after ب under a mark)
+      const wid=()=>[...l.children].map(x=>{const r=document.createRange(); r.selectNodeContents(x); return r.getBoundingClientRect().width;});
+      const off=()=>{const w=wid(); return w.some(x=>Math.abs(x-w[w.length-1])>0.5);};
+      if(off()){ l.lastElementChild.textContent=l.dataset.alt; if(off()) l.replaceWith(document.createTextNode(l.dataset.t)); }
+      continue;
+    }
     const pos=[...l.children].map(ly=>{const t=ly.firstChild,o=[]; if(!t) return o; const s=t.textContent,rg=document.createRange();
       for(let i=0;i<s.length;i++){ if(MARKRE.test(s[i])) continue; rg.setStart(t,i); rg.setEnd(t,i+1); const q=rg.getBoundingClientRect(); o.push(q.left+q.width/2); } return o;});
     const ref=pos[pos.length-1];
