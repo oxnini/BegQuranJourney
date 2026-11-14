@@ -65,13 +65,17 @@ h1,h2,h3{text-wrap:balance;line-height:1.2;margin:0;font-family:var(--serif);fon
 .book .pdfp{position:absolute;right:12px;bottom:6px;font-size:.8rem;font-weight:700;color:#6A6550;font-variant-numeric:tabular-nums;letter-spacing:.03em}
 .book+.book{margin-top:28px}
 .book>.sheet{container-type:inline-size}
-/* wide screens: pages sit side by side, first page on the left */
-@media (min-width:1100px){
-  .spread{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:34px 28px;align-items:start}
-  .spread>.book+.book{margin-top:0}
-  /* a page left alone on its row (one-page lessons, the third of three) sits centred */
-  .spread>.book:last-child:nth-child(odd){grid-column:1/-1;justify-self:center;width:calc(50% - 14px)}
-  .lintro{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:8px 28px;align-items:start}
+/* The pages of a lesson run down one column, in the book's order, at one natural width that does not follow the window.
+   So zooming the browser simply makes every word bigger, until a page is as wide as the window. */
+.lpages{max-width:760px;margin-inline:auto}
+/* wide screens: the notes and examples sit beside the pages and stay in view while the pages scroll.
+   The page column gives up width first (760 down to 560) as the window narrows or the zoom goes up; below that the notes go back on top.
+   100vh is divided by the body zoom, which also scales viewport units. */
+@media (min-width:1080px){
+  body:not(.bookmode) .lbody{display:grid;grid-template-columns:minmax(360px,1fr) minmax(560px,760px);gap:0 28px;align-items:start}
+  body:not(.bookmode) .lbody>.lside{position:sticky;top:calc(var(--navh,56px) + 10px);max-height:calc(100vh / 1.1 - var(--navh,56px) - 20px);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;padding-right:6px;min-width:0}
+  body:not(.bookmode) .lbody>.lside>.lfold{margin-bottom:0}
+  body:not(.bookmode) .lbody>.lpages{margin-inline:0;min-width:0}
 }
 
 /* green + red banner, like الدرس الأول | title */
@@ -102,6 +106,7 @@ h1,h2,h3{text-wrap:balance;line-height:1.2;margin:0;font-family:var(--serif);fon
   background:repeating-linear-gradient(90deg,var(--stripe) 0 2px,transparent 2px 6px),var(--paper);
   font-family:var(--ar);font-size:min(var(--fs,2rem),var(--fsq,99cqi));line-height:2.25;padding:6px 2px 8px;cursor:pointer;overflow:hidden;min-width:0;transition:background-color .12s}
 .cell:first-child{border-inline-start:0}
+.cell{scroll-margin-top:calc(var(--navh,56px) + 14px)}
 /* Ruled-strip pages (Lessons 11 on): the book prints each row as one strip with no lines between the words */
 .book.flow .cell{border-inline-start:0}
 .cells[style*="--fitfs"]>.cell{font-size:var(--fitfs)!important}.cell:hover{background-color:#FFF0A8}
@@ -132,6 +137,12 @@ h1,h2,h3{text-wrap:balance;line-height:1.2;margin:0;font-family:var(--serif);fon
 .expand::before{content:"";position:absolute;top:-9px;left:var(--caret,50%);width:16px;height:16px;background:#FFFDF1;border-left:1px solid var(--grid);border-top:1px solid var(--grid);transform:translateX(-50%) rotate(45deg)}
 .expand .x{float:right;margin:0 0 6px 10px;appearance:none;border:1px solid #BFB58A;background:var(--paper);color:var(--b-ink);border-radius:2px;padding:1px 10px 3px;font:700 .95rem var(--sc);text-transform:lowercase;letter-spacing:.05em;cursor:pointer}
 .expand .x:focus-visible{outline:3px solid var(--link);outline-offset:2px}
+/* wide screens: the tapped word's spelling opens beside the page, above the notes, so the page itself stays still */
+.expand.side{border:3px double var(--b-ink);outline:1px solid var(--paper);margin:1px 1px 14px;box-shadow:0 8px 20px -14px rgb(0 0 0 / .45)}
+.expand.side::before{display:none}
+.keys{display:none;margin:10px 0 0;padding-top:6px;border-top:1px dashed #BFB58A;font-size:.8rem;color:#6A6550}
+.keys kbd{font:700 .78rem var(--ui);border:1px solid #BFB58A;border-bottom-width:2px;background:var(--paper);padding:0 5px;border-radius:3px;color:var(--b-ink)}
+@media (hover:hover) and (min-width:761px){.keys{display:block}}
 @keyframes drop{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){.expand{animation:none}}
 @media (prefers-reduced-motion:reduce){.cell{transition:none}}
@@ -356,12 +367,21 @@ details.lfold>summary::before{display:inline-block;margin-right:10px;vertical-al
 .pl-ctl button:focus-visible{outline:3px solid var(--link);outline-offset:2px}
 .pl-seek{width:100%;margin:0;accent-color:var(--b-green);height:28px}
 /* speed: 0.5× to 2×, a tenth at a time */
-.pl-rate{display:flex;align-items:center;justify-self:end;border:1px solid #BFB58A;background:#FFFDF1}
+.pl-opts{display:flex;align-items:center;gap:8px;justify-self:end}
+.pl-rate{display:flex;align-items:center;border:1px solid #BFB58A;background:#FFFDF1}
+/* repeat: off, this word, or this row of the book */
+.pl-rep{appearance:none;display:inline-flex;align-items:center;gap:5px;height:38px;padding:0 10px;border:1px solid #BFB58A;border-radius:0;background:#FFFDF1;color:var(--b-ink);cursor:pointer;font:700 .92rem var(--sc);text-transform:lowercase;letter-spacing:.05em;white-space:nowrap}
+.pl-rep svg{width:17px;height:17px;flex:none}
+.pl-rep b{min-width:2.6em;text-align:left}
+.pl-rep.on{background:var(--b-green);border-color:var(--b-green);color:#fff}
+.pl-rep:focus-visible{outline:3px solid var(--link);outline-offset:2px}
+.pl-keys{grid-column:1/-1;margin:0;padding-top:4px;text-align:center}
 .pl-rate button{appearance:none;width:40px;height:36px;padding:0;border:0;background:transparent;color:var(--b-ink);font:700 1.25rem/1 var(--serif);cursor:pointer}
 .pl-rate button:disabled{color:#BFB58A;cursor:default}
 .pl-rate button:focus-visible{outline:3px solid var(--link);outline-offset:-3px}
 .pl-rate output{min-width:3.4em;text-align:center;font-size:.95rem;font-weight:700;font-variant-numeric:tabular-nums;border-inline:1px solid #E2D9AE;line-height:36px}
 body.pl-on{padding-bottom:calc(140px + env(safe-area-inset-bottom,0px))}
+@media (hover:hover) and (min-width:761px){body.pl-on{padding-bottom:175px}}
 
 /* ---------- phones ---------- */
 @media (max-width:760px){
@@ -372,6 +392,8 @@ body.pl-on{padding-bottom:calc(140px + env(safe-area-inset-bottom,0px))}
   main{gap:40px}
   /* printed pages use the full width: a thinner rope frame, and they reach into the side margins */
   .book{padding:6px;margin-inline:-10px}
+  /* wider than a phone (a tablet, or a desktop window zoomed far in): the page and its words stop growing at a large phone's size */
+  .lpages{max-width:440px}
   .book>.sheet{padding:8px 6px 26px}
   .book{--fsq:99cqi!important}
   /* extra room underneath: a final ع or م drops low, and its kasratain sits below that, so it was being cut off */
@@ -420,6 +442,8 @@ body.pl-on{padding-bottom:calc(140px + env(safe-area-inset-bottom,0px))}
   .hear-btn{width:32px;height:32px}
   .hears{flex-direction:row;flex-wrap:wrap;gap:6px 18px}
   .hear small{max-width:9em}
+  .pl-rep .lg{display:none}
+  .pl-rep{padding:0 8px}
   .lettercard h3{font-size:1.05rem}
   .lettercard p{font-size:.88rem}
   .lettercard .big{font-size:2.8rem}
@@ -474,7 +498,9 @@ body.pl-on{padding-bottom:calc(140px + env(safe-area-inset-bottom,0px))}
     <button type="button" class="cl" aria-label="Close the player"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button>
   </div>
   <input type="range" class="pl-seek" min="0" max="0" step="1" value="0" aria-label="Skip to word">
-  <div class="pl-rate" role="group" aria-label="Speed"><button type="button" class="sl" aria-label="Slower">−</button><output aria-live="polite">1.0×</output><button type="button" class="sf" aria-label="Faster">+</button></div>
+  <div class="pl-opts"><button type="button" class="pl-rep" aria-label="Repeat: off"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h10v3l4-4-4-4v3H5v6h2zM17 17H7v-3l-4 4 4 4v-3h12v-6h-2z" fill="currentColor"/></svg><span class="lg">Repeat&nbsp;</span><b>off</b></button>
+  <div class="pl-rate" role="group" aria-label="Speed"><button type="button" class="sl" aria-label="Slower">−</button><output aria-live="polite">1.0×</output><button type="button" class="sf" aria-label="Faster">+</button></div></div>
+  <p class="keys pl-keys"><kbd>Space</kbd> play or pause · <kbd>←</kbd> next word · <kbd>→</kbd> word before · <kbd>R</kbd> repeat</p>
 </div></div>
 
 <footer class="wrap">
@@ -926,7 +952,7 @@ const CLIPS=/*CLIPS*/{"1":[[0,0.08,1.18],[0,1.48,2.65],[0,2.95,4.09],[0,4.4,5.6]
 const HEAR=/*HEAR*/{"1":"Hear the name","2":"Hear the letter names","3":"Hear it read","4":"Hear it spelled out","5":"Hear it spelled out","6":"Hear it read","7":"Hear it spelled out","8":"Hear it spelled out","9":"Hear it read","10":"Hear it spelled out","11":"Hear it read","12":"Hear it read","13":"Hear it read","14":"Hear it read","15":"Hear it read","16":"Hear it read","17":"Hear it read"}/*END*/;
 const clipOf=d=>(CLIPS[d.n]||[])[d.k]||null;
 const fileOf=(n,r)=>`audio/l${n}r${String(r).padStart(2,'0')}.mp3`;
-const PL={n:0,items:[],i:0,on:false,timer:0,tok:0,rate:1}; // the whole-lesson player
+const PL={n:0,items:[],i:0,on:false,timer:0,tok:0,rate:1,rep:0}; // the whole-lesson player (rep: 0 off, 1 this word, 2 this row)
 /* Playback goes through one <audio> element, the way music players work, not through Web Audio:
    phones then play it even with the ring/silent switch on, and keep playing with the screen locked.
    Each row file is decoded once, and a clip is cut from it as a small WAV, so it starts and stops exactly on the word. */
@@ -1084,7 +1110,18 @@ function plUI(scroll){
   const cells=it.ids.map(id=>document.querySelector(`.cell[data-id="${id}"]`)).filter(Boolean);
   cells.forEach(c=>c.classList.add('now'));
   const c=cells[0];
-  if(scroll&&c&&c.offsetParent){ const r=c.getBoundingClientRect(); if(r.top<navEl.offsetHeight+8||r.bottom>innerHeight-player.offsetHeight-8) c.scrollIntoView({block:'center',behavior:smooth()}); }
+  if(scroll&&c&&c.offsetParent){
+    // Scroll ahead of the reading: as soon as the line after this one is not fully in view (the end of the screen, or of a page),
+    // bring this word up to the top, so the coming words can be read and thought about before the teacher says them.
+    const top=navEl.offsetHeight+8, bot=innerHeight-player.offsetHeight-8, r=c.getBoundingClientRect();
+    let ahead=null;
+    for(let j=PL.i+1;j<PL.items.length&&j<PL.i+12;j++){
+      const x=document.querySelector(`.cell[data-id="${PL.items[j].ids[0]}"]`); if(!x||!x.offsetParent) continue;
+      ahead=x; if(x.getBoundingClientRect().top>=r.bottom-2) break; // first word of the next line
+    }
+    const out=q=>q.top<top||q.bottom>bot;
+    if(out(r)||(ahead&&out(ahead.getBoundingClientRect())&&r.top>top+40)) c.scrollIntoView({block:'start',behavior:smooth()});
+  }
 }
 async function plGo(i,scroll=true){
   stopAudio(); const tok=++PL.tok;
@@ -1095,7 +1132,10 @@ async function plGo(i,scroll=true){
     if(tok!==PL.tok) return;
     const nx=PL.items[PL.i+1]; if(nx) clipUrl(nx.f,nx.s,nx.e,PL.rate).catch(()=>{}); // have the next word ready
     await playUrl(url,()=>{
-      if(PL.i+1<PL.items.length) PL.timer=setTimeout(()=>{ if(tok===PL.tok) plGo(PL.i+1); },GAP/PL.rate);
+      // repeat: the same word again (with a longer gap, to say it yourself), or back to the start of this book row after its last word
+      const me=PL.items[PL.i], after=PL.items[PL.i+1];
+      const to=PL.rep===1?PL.i:(PL.rep===2&&(!after||after.r!==me.r))?PL.items.findIndex(x=>x.r===me.r):after?PL.i+1:-1;
+      if(to>=0) PL.timer=setTimeout(()=>{ if(tok===PL.tok) plGo(to); },(PL.rep===1?2*GAP:GAP)/PL.rate);
       else { PL.on=false; plUI(); }
     });
   }catch(e){
@@ -1127,6 +1167,11 @@ plPP.addEventListener('click',()=>{ if(PL.on) stopAudio(); else plGo(PL.i); });
 player.querySelector('.pv').addEventListener('click',()=>plGo(PL.i-1));
 player.querySelector('.nx').addEventListener('click',()=>plGo(PL.i+1));
 player.querySelector('.cl').addEventListener('click',plClose);
+const plRep=player.querySelector('.pl-rep');
+plRep.addEventListener('click',()=>{
+  PL.rep=(PL.rep+1)%3; const w=['off','word','row'][PL.rep];
+  plRep.querySelector('b').textContent=w; plRep.classList.toggle('on',PL.rep>0); plRep.setAttribute('aria-label','Repeat: '+(PL.rep?'this '+w:'off'));
+});
 // dragging the bar previews the word; letting go plays from there
 plSeek.addEventListener('input',()=>{ stopAudio(); PL.i=+plSeek.value; plUI(true); });
 plSeek.addEventListener('change',()=>plGo(+plSeek.value));
@@ -1179,7 +1224,7 @@ const out=LESSONS.map(Ls=>{
     const banner=pi===0?`<div class="banner" tabindex="0" aria-label="Lesson ${Ls.n} title: ${esc(TR[Ls.n])}, ${esc(LIT[Ls.n])}"><div class="lno">الدَّرۡسُ ${ORD[Ls.n]}</div><div class="ttl"><span>${Ls.ar}</span></div>
         <div class="tip" role="tooltip"><i>Ad-darsu ${ORD_TR[Ls.n]} · ${TR[Ls.n]}</i><span>“Lesson ${ORD_EN[Ls.n]}: ${LIT[Ls.n]}”</span><small>Green label = the lesson number. Red ribbon = the lesson title.</small></div></div>
       <div class="entitle"><span><b>Lesson ${Ls.n}:</b> ${Ls.en}</span><i>${TR[Ls.n]}</i></div>`:'';
-    return `<div class="book${PSPLIT.has(Ls.n)?' split':''}${Ls.flow?' flow':''}" style="--fs:${FS[Ls.n]||Ls.fs};--fsq:${FSQ[Ls.n]||'99cqi'};--fsm:${FSM[Ls.n]}"><div class="sheet">${banner}<div class="grid">${rows}</div>${p.foot?`<div class="foot">${p.foot}</div>`:''}
+    return `<div class="book${PSPLIT.has(Ls.n)?' split':''}${Ls.flow?' flow':''}" style="--fs:${FS[Ls.n]||Ls.fs};--fsq:${FSQ[Ls.n]||'99cqi'};--fsm:min(${FSM[Ls.n]},${(parseFloat(FSM[Ls.n])*4.6).toFixed(1)}px)"><div class="sheet">${banner}<div class="grid">${rows}</div>${p.foot?`<div class="foot">${p.foot}</div>`:''}
       <span class="pdfp" title="PDF page ${p.pdf} of 28">Page ${p.book}</span><span class="pno" title="Page ${p.book}">${arNum(p.book)}</span></div></div>`;
   }).join('');
   const ex=Ls.ex?`<div class="examples">${Ls.ex.map((w,i)=>`<article class="excard">${breakdownHTML(w,{title:'Example '+(i+1)})}</article>`).join('')}</div>`:'';
@@ -1189,10 +1234,10 @@ const out=LESSONS.map(Ls=>{
       <div><div class="eyebrow"><span>Lesson ${ORD_EN[Ls.n]} · PDF p.${rng(pdfs)}</span><span class="ar">الدَّرۡسُ ${ORD[Ls.n]}</span></div>
         <h2>${Ls.en}</h2><div class="tr">${TR[Ls.n]}</div></div>
       <div class="media">${listen}${vid}</div></div>
-    <details class="fold lfold"${OPEN}><summary>Notes${Ls.ex?' and examples':''} <small>${Ls.notes.length} note${Ls.notes.length>1?'s':''}${Ls.ex?` · ${Ls.ex.length} example${Ls.ex.length>1?'s':''}`:''}</small></summary>
-      <div class="lintro"><ul class="notes">${Ls.notes.map(x=>`<li>${x}</li>`).join('')}</ul>${ex}</div></details>
-    ${CLIPS[Ls.n]?`<div class="lplay"><button type="button" class="playall" data-n="${Ls.n}"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg></span>Play the whole lesson</button><small>Each ${Ls.mode==='letter'?'letter':'word'} once, read whole · Sheikh Haqqani</small></div>`:''}
-    <div class="spread">${pages}</div></section>`;
+    <div class="lbody"><div class="lside"><details class="fold lfold"${OPEN}><summary>Notes${Ls.ex?' and examples':''} <small>${Ls.notes.length} note${Ls.notes.length>1?'s':''}${Ls.ex?` · ${Ls.ex.length} example${Ls.ex.length>1?'s':''}`:''}</small></summary>
+      <div class="lintro"><ul class="notes">${Ls.notes.map(x=>`<li>${x}</li>`).join('')}</ul>${ex}</div></details></div>
+    <div class="lpages">${CLIPS[Ls.n]?`<div class="lplay"><button type="button" class="playall" data-n="${Ls.n}"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg></span>Play the whole lesson</button><small>Each ${Ls.mode==='letter'?'letter':'word'} once, read whole · Sheikh Haqqani</small></div>`:''}
+    <div class="spread">${pages}</div></div></div></section>`;
 }).join('');
 document.getElementById('lessonsout').innerHTML=out;
 
@@ -1294,6 +1339,7 @@ function setView(v){
 }
 viewBtns.forEach(b=>b.addEventListener('click',()=>{
   const keep=secs[cur]; setView(b.dataset.v);
+  mount();
   if(keep&&keep.offsetParent&&keep.id.startsWith('lesson-')) keep.scrollIntoView(); spy();
 }));
 try{ if(localStorage.getItem('nq-view')==='book') setView('book'); }catch(e){}
@@ -1313,6 +1359,15 @@ function contentBody(d){
   return breakdownHTML(d.t);
 }
 function closePanel(){ stopAudio(); if(panel){panel.remove();panel=null} if(current){current.classList.remove('on');current=null} }
+// wide screens with notes showing: the spelling goes in the column beside the page; otherwise right under the tapped row
+const sideMQ=matchMedia('(min-width:1080px)');
+function mount(){
+  if(!panel||!current) return;
+  const side=sideMQ.matches&&!document.body.classList.contains('bookmode')&&current.closest('.lbody').querySelector('.lside');
+  panel.classList.toggle('side',!!side);
+  if(side){ if(panel.parentNode!==side) side.prepend(panel); side.scrollTop=0; }
+  else { const row=current.closest('.row'); if(row.nextSibling!==panel) row.after(panel); place(); }
+}
 function place(){
   if(!panel||!current) return;
   const rr=current.closest('.row').getBoundingClientRect(), cr=current.getBoundingClientRect();
@@ -1330,20 +1385,54 @@ document.getElementById('main').addEventListener('click',e=>{
   const d=store.get(+b.dataset.id); if(!d) return;
   current=b; b.classList.add('on'); warm(d);
   panel=document.createElement('div'); panel.className='expand';
-  panel.innerHTML=`<button type="button" class="x">Close</button>`+contentFor(d,b.dataset.id); fixLayers(panel);
-  b.closest('.row').after(panel); place();
-  if(panel.getBoundingClientRect().bottom>innerHeight) panel.scrollIntoView({block:'nearest',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
+  panel.innerHTML=`<button type="button" class="x">Close</button>`+contentFor(d,b.dataset.id)+`<p class="keys"><kbd>←</kbd> <kbd>→</kbd> <kbd>↑</kbd> <kbd>↓</kbd> move between ${d.mode==='letter'?'letters':'words'} · <kbd>Space</kbd> hear it · <kbd>Esc</kbd> close</p>`;
+  mount(); fixLayers(panel);
+  if(!panel.classList.contains('side')&&panel.getBoundingClientRect().bottom>innerHeight) panel.scrollIntoView({block:'nearest',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
 });
-addEventListener('resize',place);
+addEventListener('resize',mount);
 if('IntersectionObserver' in window){
   const io=new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){ fetchRow(e.target.dataset.af).catch(()=>{}); io.unobserve(e.target); } }),{rootMargin:'300px 0px'});
   document.querySelectorAll('.row[data-af]').forEach(r=>io.observe(r));
 }
+/* Keyboard. Arrows follow the page, which reads right to left: ← is the next word, → the one before.
+   Player open: Space plays or pauses, ← → step through the words, R changes repeat.
+   Otherwise: arrows move between words (and the open spelling follows), Space plays the open word's recording. */
+const cellKey=e=>e.target.matches&&e.target.matches('button.cell');
 addEventListener('keydown',e=>{
-  if(e.key!=='Escape') return;
-  if(!jumpMenu.hidden){ setJump(false); jump.focus(); return; }
-  if(panel){const c=current;closePanel();c&&c.focus()}
+  if(e.key==='Escape'){
+    if(!jumpMenu.hidden){ setJump(false); jump.focus(); return; }
+    if(panel){const c=current;closePanel();c&&c.focus()}
+    return;
+  }
+  const t=e.target;
+  if(e.metaKey||e.ctrlKey||e.altKey||!t.closest||t.closest('input,textarea,select,[contenteditable]')) return;
+  const onCell=cellKey(e), onCtl=!onCell&&t.closest('button,a,summary');
+  const step={ArrowLeft:1,ArrowRight:-1}[e.key], space=e.key===' ';
+  if(!player.hidden){
+    // Space pauses from anywhere on the page, even with the focus left on "Play the whole lesson" or a word; the player's own buttons and links keep it
+    if(space&&!t.closest('.player,a,summary')){ e.preventDefault(); plPP.click(); }
+    else if(step){ e.preventDefault(); plGo(PL.i+step); }
+    else if(e.key.toLowerCase()==='r'){ plRep.click(); }
+    return;
+  }
+  if(space){ const hb=panel&&!onCtl&&panel.querySelector('.hear-btn'); if(hb){ e.preventDefault(); playClip(hb); } return; }
+  const from=onCell?t:(!onCtl&&current); if(!from) return;
+  const all=[...from.closest('section').querySelectorAll('button.cell:not(.blank)')].filter(c=>c.offsetParent);
+  let to=null;
+  if(step) to=all[all.indexOf(from)+step];
+  else if(e.key==='ArrowUp'||e.key==='ArrowDown'){
+    // the nearest word on the next line up or down, whichever page it is on
+    const up=e.key==='ArrowUp', f=from.getBoundingClientRect(), fx=f.left+f.width/2;
+    const box=all.map(c=>[c,c.getBoundingClientRect()]).filter(([,r])=>up?r.bottom<=f.top+2:r.top>=f.bottom-2);
+    if(box.length){ const edge=up?Math.max(...box.map(([,r])=>r.bottom)):Math.min(...box.map(([,r])=>r.top));
+      to=box.filter(([,r])=>Math.abs((up?r.bottom:r.top)-edge)<4).sort((a,b)=>Math.abs(a[1].left+a[1].width/2-fx)-Math.abs(b[1].left+b[1].width/2-fx))[0][0]; }
+  } else return;
+  e.preventDefault(); if(!to) return;
+  to.focus(); if(panel) to.click();
 });
+// Space on a focused word must not also "press" it once the key comes up
+addEventListener('keyup',e=>{ if(e.key!==' '||!e.target.closest) return;
+  if(player.hidden?(panel&&cellKey(e)):(e.target.closest('button')&&!e.target.closest('.player'))) e.preventDefault(); });
 })();
 </script>
 <script>
