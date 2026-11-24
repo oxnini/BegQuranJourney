@@ -164,11 +164,26 @@ h1,h2,h3{text-wrap:balance;line-height:1.2;margin:0;font-family:var(--serif);fon
 .bd .step .mk{font-size:.78rem;font-weight:700;line-height:1.2}
 .bd .step .s{font-size:.95rem;font-weight:700;margin-top:2px;padding:0 8px;border-radius:999px;background:#FFF0A8}
 .bd .step.silent{opacity:.6}
+/* phones, long words and phrases: small boxes in a tight grid (letter, coloured mark, sound) so the page stays in view;
+   the letter names are still in "Out loud" underneath */
+@media (max-width:640px){
+  .bd .steps.many{display:grid;grid-template-columns:repeat(auto-fill,minmax(46px,1fr));gap:4px;flex:1 1 100%;width:100%}
+  .bd .steps.many .step{min-width:0;padding:0 2px 4px}
+  .bd .steps.many .step .n,.bd .steps.many .step b,.bd .steps.many .xm{display:none}
+  .bd .steps.many .step .g{font-size:1.5rem;line-height:1.75}
+  .bd .steps.many .step .mk{font-size:.66rem;line-height:1.15;overflow-wrap:anywhere}
+  .bd .steps.many .step .s{font-size:.82rem;margin-top:3px;padding:0 5px}
+  .bd .steps.many .step .tag{font-size:.5rem;padding:0 3px;letter-spacing:0}
+  .bd .top .word{font-size:2.3rem}
+}
 .bd .step.silent .s{background:transparent;color:var(--m-silent)}
 .bd .notes2{margin:8px 0 0;padding:0;list-style:none;font-size:.85rem;color:#4A4636;display:flex;flex-direction:column;gap:2px}
 .bd .script{margin-top:8px;font-size:.92rem;color:#4A4636;border-top:1px dashed #BFB58A;padding:6px 2px 0}
 .bd .script .say{font-family:var(--sc);text-transform:lowercase;letter-spacing:.05em;font-weight:700;color:var(--b-green);margin-right:4px}
 .bd .script em{font-style:normal;color:var(--b-ink);font-weight:700}
+.vend{display:inline-block;width:.3em;height:.3em;border:max(1.2px,.04em) solid #3D4A6B;border-radius:50%;margin:0 .14em;vertical-align:.18em;opacity:.85;box-sizing:border-box}
+.notes .vend,.vnote .vend{width:.62em;height:.62em;border-width:1.5px;vertical-align:-.04em;margin:0 .1em}
+.bd .vnote{margin:8px 0 0;font-size:.9rem;color:#4A4636}
 .c-fatha{color:var(--m-fatha)}.c-kasra{color:var(--m-kasra)}.c-damma{color:var(--m-damma)}.c-sukoon{color:var(--m-sukoon)}
 .c-tan{color:var(--m-tan)}.c-madd{color:var(--m-madd)}.c-silent{color:var(--m-silent)}.c-shadda{color:var(--m-shadda)}
 .tag{display:inline-block;font-size:.66rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;border-radius:4px;padding:1px 6px;vertical-align:middle;color:#fff}
@@ -192,7 +207,6 @@ h1,h2,h3{text-wrap:balance;line-height:1.2;margin:0;font-family:var(--serif);fon
 .hear-btn:hover{background:#185A49}
 .hear-btn:active{transform:scale(.94)}
 .hear-btn.playing{background:var(--b-gold);color:var(--b-ink);box-shadow:inset 0 0 0 2px var(--b-gold),inset 0 0 0 3px rgb(255 255 255 / .5)}
-.hear-btn.playing .sp{display:none}.hear-btn.playing .pz{display:block}
 .hear-btn.busy{cursor:progress;opacity:.75}
 .hear-btn:focus-visible{outline:3px solid var(--link);outline-offset:2px}
 .hear small{font-size:.82rem;color:#6A6550;line-height:1.3}
@@ -823,7 +837,7 @@ const LESSONS=[
  {"n": 14, "ar": "تَدۡرِيبَاتٌ عَلَى الشَّدَّةِ وَالسُّكُون", "en": "Practice: shadda and sukoon together", "flow": true, "notes": ["Words with both a <span class=\"c-shadda\"><b>shadda</b></span> and a <span class=\"c-sukoon\"><b>sukoon</b></span>: <span class=\"ar\">مُدَّتۡ</span> “mud-dat”, <span class=\"ar\">وَٱلصُّبۡحِ</span> “waṣ-ṣub-ḥi”.", "<b>Sun letters</b> take the shadda after <span class=\"ar\">ٱلۡ</span>, and the laam goes silent: <span class=\"ar\">وَٱلشَّمۡسِ</span> “wash-sham-si”. A moon letter keeps the laam: <span class=\"ar\">فَإِنَّ ٱلۡجَنَّةَ</span> “fa-ʾin-nal-jan-na-ta”.", "The teacher spells the first words (as far as <span class=\"ar\">وَٱلصُّبۡحِ</span>), then <span class=\"ar\">مُنۡفَكِّينَ</span> and <span class=\"ar\">فَإِنَّ ٱلۡجَنَّةَ</span>, and reads the rest whole."], "ex": ["مُدَّتۡ", "وَٱلصُّبۡحِ"], "pages": [{"pdf": 22, "book": 25, "rows": ["مَرُّوا رَبِّى مُدَّتۡ حُقَّتۡ خَفَّتۡ تَبَّتۡ", "تَخَلَّتۡ قَدَّمۡتُ وَٱلصُّبۡحِ وَٱلشَّمۡسِ", "وَٱلشَّفۡعِ بِالصَّبۡرِ وَٱلصَّيۡفِ وَٱلَّيۡلِ", "وَٱلتِّينِ_وَٱلزَّيۡتُونِ سِجِّيلٍ سِجِّينٌ", "مُنۡفَكِّينَ فَإِنَّ_ٱلۡجَنَّةَ لِحُبِّ_ٱلۡخَيۡرِ", "إِذَا_ٱلسَّمَآءُ_ٱنۡشَقَّتۡ مَا_ٱلطَّارِقُ_ٱلنَّجۡمُ", "ٱلثَّاقِبُ مِنۡ_شَرِّ_ٱلۡوَسۡوَاسِ_ٱلۡخَنَّاسِ"]}]},
  {"n": 15, "ar": "تَدۡرِيبَاتٌ عَلَى الشَّدَّتَيۡنِ فِي كَلِمَة", "en": "Practice: two shaddas in one word", "flow": true, "notes": ["Each word has <b>two</b> shaddas. Double each one in turn: <span class=\"ar\">يَزَّكَّىٰ</span> “yaz-zak-kaa”, <span class=\"ar\">ٱلۡمُدَّثِّرُ</span> “al-mud-dath-thi-ru”.", "Out loud, like the teacher: “Yaa fatha, Zaay shadda <b>yaz</b> · Zaay fatha, Kaaf shadda <b>zak</b> · Kaaf fatha, small alif <b>kaa</b> → <b>yazzakkaa</b>”. He spells almost every word in this lesson.", "The book prints Lessons 15 and 16 in black with the marks picked out in red. Here each mark has its own colour, as in Lessons 4–12.", "He reads <span class=\"ar\">مِنۡ</span> straight on into <span class=\"ar\">شَرِّ ٱلنَّفَّٰثَٰتِ</span> (“min shar-rin-naf-faa-thaa-ti”), and <span class=\"ar\">فَعَّالٌ لِّمَا</span> as one: the tanween merges into the doubled laam, “faʿ-ʿaa-lul-li-maa”."], "ex": ["يَزَّكَّىٰ", "عِلِّيِّينَ"], "pages": [{"pdf": 22, "book": 25, "rows": ["يَزَّكَّىٰ يَذَّكَّرُ"]}, {"pdf": 23, "book": 26, "rows": ["ٱلۡمُدَّثِّرُ ٱلۡمُزَّمِّلُ عِلِّيِّينَ عِلِّيُّونَ", "إِنَّ_ٱلَّذِينَ إِلَّا_ٱلَّذِينَ مِنۡ", "شَرِّ_ٱلنَّفَّٰثَٰتِ فَعَّالٌ_لِّمَا يُرِيدُ"]}]},
  {"n": 16, "ar": "تَدۡرِيبَاتٌ عَلَى الشَّدَّةِ وَالسُّكُونِ مَعَ المَدّ", "en": "Practice: a long vowel before a shadda", "flow": true, "notes": ["A madd letter with a <span class=\"c-shadda\"><b>shadda</b></span> right after it, in the same word, is stretched <b>6 counts</b>: <span class=\"ar\">ضَآلًّا</span> “ḍaaaaaal-lan”, <span class=\"ar\">دَآبَّةٍ</span> “daaaaaab-ba-tin”. The ~ sign is printed on most of them.", "Out loud, like the teacher (and the teachers’ guide, PDF p.28): “Ḍaad fatha, alif madd, Laam shadda <b>ḍaaal</b> · Laam fathatain <b>lan</b> → <b>ḍaaallan</b>”.", "<span class=\"ar\">أَتُحَآجُّوٓنِّى</span> has two of them: “a-tu-ḥaaaaaaj-juuuuuun-nii”. A small alif with ~ works the same way: <span class=\"ar\">وَٱلصَّٰٓفَّٰتِ</span>, <span class=\"ar\">تَحَٰٓضُّونَ</span>.", "The teacher reads <span class=\"ar\">جَآءَتِ ٱلصَّآخَّةُ</span> in one breath across the end of a row, so each box plays its own part."], "ex": ["ضَآلًّا", "دَآبَّةٍ"], "pages": [{"pdf": 23, "book": 26, "rows": ["ضَآلًّا دَآبَّةٍ حَآجَّكَ حَآجُّوكَ", "لَضَآلُّونَ وَلَا_ٱلضَّآلِّينَ أَتُحَآجُّوٓنِّى", "وَلَا_تَحَٰٓضُّونَ وَٱلصَّٰٓفَّٰتِ جَآءَتِ", "ٱلصَّآخَّةُ فَإِذَا_جَآءَتِ_ٱلطَّآمَّةُ_ٱلۡكُبۡرَىٰ"]}]},
- {"n": 17, "ar": "تَدۡرِيبَاتٌ عَلَى مَا سَبَق", "en": "Final lesson: practice on everything so far", "flow": true, "notes": ["Phrases from the last part of the Quran, using everything from Lessons 1–16. Read each box as one phrase. The small circles in the book mark the ends of verses and are not read.", "<b>Small meem</b> <span class=\"ar\">ـۢ</span> (on a noon, or with a tanween): before <span class=\"ar\">ب</span> the n becomes an <b>m</b>, with a nasal hum (iqlāb). <span class=\"ar\">مَنۢ بَخِلَ</span> “mam-ba-khi-la”, <span class=\"ar\">لَنَسۡفَعَۢا بِٱلنَّاصِيَةِ</span> “la-nas-fa-ʿam bin-naa-ṣi-ya”. The teacher spells it “Meem fatha, Meem sukoon <b>mam</b>”.", "<b>A noon with no mark</b> before a doubled letter merges into it: <span class=\"ar\">مِن رَّبِّكَ</span> “mir-rab-bi-ka”. Before <span class=\"ar\">ي</span> or <span class=\"ar\">و</span> it merges with a hum: <span class=\"ar\">فَمَن يَعۡمَلۡ</span> “fa-may-yaʿ-mal”. A tanween does the same: <span class=\"ar\">خَيۡرًا يَرَهُۥ</span> “khay-ray-ya-ra-huu”.", "The teacher often reads on across boxes, and across the end of a row, in one breath. Each box plays its own part, and a spelled-out box ends with his whole reading of the phrase.", "<b>Written one way, read another</b> (the table at the back of the book, PDF p.25). Read the middle column. With the upright oval ۠ the alif is said when you stop on the word (see Key rules).<table class=\"rasm\"><thead><tr><th>Written</th><th>Read</th><th>Sūra:āya</th></tr></thead><tbody><tr><td class=\"ar\">أَنَا۠</td><td class=\"ar\">أَنَ</td><td>everywhere</td></tr><tr><td class=\"ar\">يَبۡصُۜطُ</td><td class=\"ar\">يَبۡسُطُ</td><td>2:245</td></tr><tr><td class=\"ar\">أَفَإِي۟ن</td><td class=\"ar\">أَفَإِن</td><td>3:144 · 21:34</td></tr><tr><td class=\"ar\">بَصۜۡطَةً</td><td class=\"ar\">بَسۡطَةً</td><td>7:69</td></tr><tr><td class=\"ar\">مَلَإِي۟هِۦ</td><td class=\"ar\">مَلَئِهِۦ</td><td>everywhere</td></tr><tr><td class=\"ar\">ثَمُودَا۟</td><td class=\"ar\">ثَمُودَ</td><td>11:68</td></tr><tr><td class=\"ar\">لِّتَتۡلُوَا۟</td><td class=\"ar\">لِتَتۡلُوَ</td><td>13:30</td></tr><tr><td class=\"ar\">لَن نَّدۡعُوَا۟</td><td class=\"ar\">لَن نَّدۡعُوَ</td><td>18:14</td></tr><tr><td class=\"ar\">لِشَاْىۡءٍ</td><td class=\"ar\">لِشَيۡءٍ</td><td>18:23</td></tr><tr><td class=\"ar\">لَّٰكِنَّا۠</td><td class=\"ar\">لَٰكِنَّ</td><td>18:38</td></tr><tr><td class=\"ar\">لَأَا۟ذۡبَحَنَّهُۥٓ</td><td class=\"ar\">لَأَذۡبَحَنَّهُۥ</td><td>27:21</td></tr><tr><td class=\"ar\">سَلَٰسِلَا۠</td><td class=\"ar\">سَلَٰسِلَ</td><td>76:4</td></tr><tr><td class=\"ar\">قَوَارِيرَا۠</td><td class=\"ar\">قَوَارِيرَ</td><td>76:15</td></tr><tr><td class=\"ar\">وَمَلَإِي۟هِمۡ</td><td class=\"ar\">وَمَلَئِهِمۡ</td><td>10:83</td></tr><tr><td class=\"ar\">لِّيَبۡلُوَا۟</td><td class=\"ar\">لِيَبۡلُوَ</td><td>47:4</td></tr><tr><td class=\"ar\">لِّيَرۡبُوَا۟</td><td class=\"ar\">لِيَرۡبُوَ</td><td>30:39</td></tr></tbody></table>"], "ex": ["خَيۡرًا يَرَهُۥ", "مَنۢ بَخِلَ"], "pages": [{"pdf": 23, "book": 26, "rows": ["جَزَآءً ٱلۡمَلَٰٓئِكَةُ إِنَّآ_أَعۡطَيۡنَٰكَ إِلَيۡنَآ"]}, {"pdf": 24, "book": 27, "rows": ["إِيَابَهُمۡ خَيۡرًا_يَرَهُۥ شَرًّا_يَرَهُۥ مِيقَٰتًا", "يَوۡمَ فَمَن_يَعۡمَلۡ يَوۡمَئِذٍ_يَصۡدُرُ", "ٱلنَّاسُ مِن_رَّبِّكَ رَسُولٌ_مِّنَ_ٱللَّٰهِ", "صُحُفًا_مُّطَهَّرَةً صَفًّا_لَّا_يَتَكَلَّمُونَ", "قُلُوبٌ_يَوۡمَئِذٍ_وَاجِفَةٌ_أَبۡصَٰرُهَا سِرَاجًا", "وَهَّاجًا وَأَنۡزَلۡنَا أَكۡلًا_لَّمًّا_وَتُحِبُّونَ", "ٱلۡمَالَ_حُبًّا_جَمًّا غُثَآءً_أَحۡوَىٰ مُعۡتَدٍ", "أَثِيمٍ_إِذَا_تُتۡلَىٰ نَارًا_حَامِيَةً_تُسۡقَىٰ_مِنۡ", "عَيۡنٍ_ءَانِيَةٍ مَنۢ_بَخِلَ لَيُنۢبَذَنَّ", "مِنۢ_بَعۡدِ مِنۢ_بَيۡنِ_ٱلصُّلۡبِ لَنَسۡفَعَۢا"]}, {"pdf": 25, "book": 28, "rows": ["بِٱلنَّاصِيَةِ بِذَنۢبِهِمۡ مُطَهَّرَةٍۭ_بِأَيۡدِى", "سَفَرَةٍ_كِرَامٍۭ_بَرَرَةٍ هُمۡ_فِيهَا لَكُمۡ_دِينُكُمۡ", "وَلِىَ_دِينِ إِنَّ_رَبَّهُمۡ_بِهِمۡ تَرۡمِيهِم", "بِحِجَارَةٍ لَهُم_مَّا_يَشَآءُونَ مِمَّ ٱللَّٰهُمَّ", "تَمَّتۡ_بِٱلۡخَيۡرِ"]}]}
+ {"n": 17, "ar": "تَدۡرِيبَاتٌ عَلَى مَا سَبَق", "en": "Final lesson: practice on everything so far", "flow": true, "notes": ["Phrases from the last part of the Quran, using everything from Lessons 1–16. Read each box as one phrase. A small circle <span class=\"vend\"></span> marks the <b>end of a verse</b>, where the book prints one: pause there before you go on. The circle itself is not read.", "<b>Small meem</b> <span class=\"ar\">ـۢ</span> (on a noon, or with a tanween): before <span class=\"ar\">ب</span> the n becomes an <b>m</b>, with a nasal hum (iqlāb). <span class=\"ar\">مَنۢ بَخِلَ</span> “mam-ba-khi-la”, <span class=\"ar\">لَنَسۡفَعَۢا بِٱلنَّاصِيَةِ</span> “la-nas-fa-ʿam bin-naa-ṣi-ya”. The teacher spells it “Meem fatha, Meem sukoon <b>mam</b>”.", "<b>A noon with no mark</b> before a doubled letter merges into it: <span class=\"ar\">مِن رَّبِّكَ</span> “mir-rab-bi-ka”. Before <span class=\"ar\">ي</span> or <span class=\"ar\">و</span> it merges with a hum: <span class=\"ar\">فَمَن يَعۡمَلۡ</span> “fa-may-yaʿ-mal”. A tanween does the same: <span class=\"ar\">خَيۡرًا يَرَهُۥ</span> “khay-ray-ya-ra-huu”.", "The teacher often reads on across boxes, and across the end of a row, in one breath. Each box plays its own part, and a spelled-out box ends with his whole reading of the phrase.", "<b>Written one way, read another</b> (the table at the back of the book, PDF p.25). Read the middle column. With the upright oval ۠ the alif is said when you stop on the word (see Key rules).<table class=\"rasm\"><thead><tr><th>Written</th><th>Read</th><th>Sūra:āya</th></tr></thead><tbody><tr><td class=\"ar\">أَنَا۠</td><td class=\"ar\">أَنَ</td><td>everywhere</td></tr><tr><td class=\"ar\">يَبۡصُۜطُ</td><td class=\"ar\">يَبۡسُطُ</td><td>2:245</td></tr><tr><td class=\"ar\">أَفَإِي۟ن</td><td class=\"ar\">أَفَإِن</td><td>3:144 · 21:34</td></tr><tr><td class=\"ar\">بَصۜۡطَةً</td><td class=\"ar\">بَسۡطَةً</td><td>7:69</td></tr><tr><td class=\"ar\">مَلَإِي۟هِۦ</td><td class=\"ar\">مَلَئِهِۦ</td><td>everywhere</td></tr><tr><td class=\"ar\">ثَمُودَا۟</td><td class=\"ar\">ثَمُودَ</td><td>11:68</td></tr><tr><td class=\"ar\">لِّتَتۡلُوَا۟</td><td class=\"ar\">لِتَتۡلُوَ</td><td>13:30</td></tr><tr><td class=\"ar\">لَن نَّدۡعُوَا۟</td><td class=\"ar\">لَن نَّدۡعُوَ</td><td>18:14</td></tr><tr><td class=\"ar\">لِشَاْىۡءٍ</td><td class=\"ar\">لِشَيۡءٍ</td><td>18:23</td></tr><tr><td class=\"ar\">لَّٰكِنَّا۠</td><td class=\"ar\">لَٰكِنَّ</td><td>18:38</td></tr><tr><td class=\"ar\">لَأَا۟ذۡبَحَنَّهُۥٓ</td><td class=\"ar\">لَأَذۡبَحَنَّهُۥ</td><td>27:21</td></tr><tr><td class=\"ar\">سَلَٰسِلَا۠</td><td class=\"ar\">سَلَٰسِلَ</td><td>76:4</td></tr><tr><td class=\"ar\">قَوَارِيرَا۠</td><td class=\"ar\">قَوَارِيرَ</td><td>76:15</td></tr><tr><td class=\"ar\">وَمَلَإِي۟هِمۡ</td><td class=\"ar\">وَمَلَئِهِمۡ</td><td>10:83</td></tr><tr><td class=\"ar\">لِّيَبۡلُوَا۟</td><td class=\"ar\">لِيَبۡلُوَ</td><td>47:4</td></tr><tr><td class=\"ar\">لِّيَرۡبُوَا۟</td><td class=\"ar\">لِيَرۡبُوَ</td><td>30:39</td></tr></tbody></table>"], "ex": ["خَيۡرًا يَرَهُۥ", "مَنۢ بَخِلَ"], "pages": [{"pdf": 23, "book": 26, "rows": ["جَزَآءً ٱلۡمَلَٰٓئِكَةُ إِنَّآ_أَعۡطَيۡنَٰكَ إِلَيۡنَآ"]}, {"pdf": 24, "book": 27, "rows": ["إِيَابَهُمۡ○ خَيۡرًا_يَرَهُۥ○ شَرًّا_يَرَهُۥ○ مِيقَٰتًا", "يَوۡمَ فَمَن_يَعۡمَلۡ يَوۡمَئِذٍ_يَصۡدُرُ", "ٱلنَّاسُ مِن_رَّبِّكَ رَسُولٌ_مِّنَ_ٱللَّٰهِ", "صُحُفًا_مُّطَهَّرَةً صَفًّا_لَّا_يَتَكَلَّمُونَ", "قُلُوبٌ_يَوۡمَئِذٍ_وَاجِفَةٌ_أَبۡصَٰرُهَا سِرَاجًا", "وَهَّاجًا○ وَأَنۡزَلۡنَا أَكۡلًا_لَّمًّا○_وَتُحِبُّونَ", "ٱلۡمَالَ_حُبًّا_جَمًّا○ غُثَآءً_أَحۡوَىٰ○ مُعۡتَدٍ", "أَثِيمٍ_إِذَا_تُتۡلَىٰ نَارًا_حَامِيَةً_تُسۡقَىٰ_مِنۡ", "عَيۡنٍ_ءَانِيَةٍ○ مَنۢ_بَخِلَ لَيُنۢبَذَنَّ", "مِنۢ_بَعۡدِ مِنۢ_بَيۡنِ_ٱلصُّلۡبِ لَنَسۡفَعَۢا"]}, {"pdf": 25, "book": 28, "rows": ["بِٱلنَّاصِيَةِ بِذَنۢبِهِمۡ مُطَهَّرَةٍۭ_بِأَيۡدِى", "سَفَرَةٍ_كِرَامٍۭ_بَرَرَةٍ○ هُمۡ_فِيهَا لَكُمۡ_دِينُكُمۡ", "وَلِىَ_دِينِ إِنَّ_رَبَّهُمۡ_بِهِمۡ تَرۡمِيهِم", "بِحِجَارَةٍ لَهُم_مَّا_يَشَآءُونَ مِمَّ ٱللَّٰهُمَّ", "تَمَّتۡ_بِٱلۡخَيۡرِ"]}]}
 ];
 const MUQ={'الٓمٓ':'Alif · Laaam · Meeem','الٓمٓصٓ':'Alif · Laaam · Meeem · Ṣaaad','الٓر':'Alif · Laaam · Raa','الٓمٓر':'Alif · Laaam · Meeem · Raa',
  'كٓهيعٓصٓ':'Kaaaf · Haa · Yaa · ʿAyyyn · Ṣaaad','طه':'Ṭaa · Haa','طسٓمٓ':'Ṭaa · Seeen · Meeem','طسٓ':'Ṭaa · Seeen','يسٓ':'Yaa · Seeen',
@@ -912,10 +926,14 @@ function shaddaRed(text){
   return `<span class="lyr shr" data-t="${esc(text)}" data-alt="${esc(alt)}"><span class="ly c-bookred" aria-hidden="true">${esc(under)}</span><span class="ly base">${esc(top)}</span></span>`;
 }
 const marked=(n,t)=>LAYERED.has(n)?layered(t):SHRED.has(n)?shaddaRed(t):esc(t);
+// Lesson 17: ○ in the text is the book's small circle at the end of a verse. It is drawn, never spelled or read.
+const STOP='○', VEND='<span class="vend" role="img" aria-label="end of verse"></span>';
+const unstop=t=>t.replace(/○/g,'');
+const withStops=(t,f)=>t.split(STOP).map(f).join(VEND);
 
 /* ---------- rendering helpers ---------- */
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const markHTML=ms=>ms.map(x=>`<span class="c-${x.cls}">${esc(x.label)}</span>`).join(' + ');
+const markHTML=ms=>ms.map(x=>`<span class="c-${x.cls}">${esc(x.label).replace(' (no mark)','<i class="xm"> (no mark)</i>')}</span>`).join(' + ');
 function badges(b,bounce=true){
   const t=[]; if(HEAVY.includes(b)) t.push('<span class="tag heavy">heavy</span>');
   if(bounce&&QAL.includes(b)) t.push('<span class="tag bounce">qalqala</span>');
@@ -929,11 +947,12 @@ function breakdownHTML(word,opts={}){
     <b>${esc(s.name)}</b>${s.marks.length?`<span class="mk">${markHTML(s.marks)}</span>`:''}${badges(s.base,!!s.bounce)?`<span>${badges(s.base,!!s.bounce)}</span>`:''}
     ${s.say&&s.say!=='—'?`<span class="s">${esc(s.say)}</span>`:s.say==='—'?'<span class="s">silent</span>':''}</li>`).join('');
   const notes=[...new Set(r.steps.map(s=>s.note).filter(Boolean))];
-  const script=r.steps.map(s=>`${esc(s.name)} ${s.marks.map(x=>x.label.replace(' (no mark)','')).join(' ')} <em>${s.say==='—'?'(skip)':esc(s.say)}</em>`).join(' · ');
+  const script=r.steps.map(s=>`${esc(s.name)} ${s.marks.map(x=>`<span class="c-${x.cls}">${esc(x.label.replace(' (no mark)',''))}</span>`).join(' ')} <em>${s.say==='—'?'(skip)':esc(s.say)}</em>`).join(' · ');
   return `<div class="bd">${opts.title?`<div class="eyebrow">${esc(opts.title)}</div>`:''}
-    <div class="top"><div class="word">${layered(w)}</div><ol class="steps">${steps}</ol></div>
+    <div class="top"><div class="word">${opts.shown&&opts.shown.includes(STOP)?withStops(opts.shown.replace(/~/g,ZWJ),layered):layered(w)}</div><ol class="steps${r.steps.length>4?' many':''}">${steps}</ol></div>
     ${voiced?`<div class="whole">Together: <strong>${esc(r.together)}</strong>${r.together.includes('-')?` → <strong>${esc(whole)}</strong>`:''}</div>`:''}
     ${voiced?`<div class="script"><span class="say">Out loud</span> ${script} → <em>${esc(whole)}</em></div>`:'<p class="script">These are letters joined together. Name each one in order, from right to left.</p>'}
+    ${opts.shown&&opts.shown.includes(STOP)?`<p class="vnote">${VEND} ${opts.shown.trim().endsWith(STOP)?'A verse ends here: pause before the next box.':`A verse ends after <span class="ar">${esc(opts.shown.split(STOP)[0].trim().split(' ').pop())}</span>: pause there, then go on.`} The circle is not read.</p>`:''}
     ${notes.length?`<ul class="notes2">${notes.map(n=>`<li>${esc(n)}</li>`).join('')}</ul>`:''}
   </div>`;
 }
@@ -1027,7 +1046,9 @@ async function clipUrl(f,s,e,rate=1){
 function playUrl(url,onend){
   const t=++playTok;
   AEL.onended=()=>{ if(t===playTok) onend&&onend(); };
-  AEL.src=url; AEL.defaultPlaybackRate=AEL.playbackRate=1;
+  // the same clip again: rewind rather than reload the same blob URL (Safari can skip a reload to an identical src)
+  if(AEL.src===url){ try{ AEL.pause(); AEL.currentTime=0; }catch(e){ AEL.src=url; } } else AEL.src=url;
+  AEL.defaultPlaybackRate=AEL.playbackRate=1;
   const p=AEL.play(); if(p&&p.then) p.then(()=>{primed=true},()=>{});
   return p;
 }
@@ -1067,7 +1088,7 @@ function hearHTML(d,id){
 }
 async function playClip(btn){
   const d=store.get(+btn.dataset.id), c=d&&clipOf(d), t=btn.parentNode.querySelector('small'); if(!c) return;
-  if(btn.classList.contains('playing')){ stopAudio(); return; }
+  // a tap always plays from the start, even mid-clip: learners tap again to hear it again, not to stop it
   t.textContent=t.dataset.cap;
   stopAudio(); btn.classList.add('busy');
   const tok=playTok;
@@ -1099,14 +1120,14 @@ function lessonItems(n){
     else if(c[3]===2) return;             // spelled out, but no whole-word reading was found
     else { s=c[1]; e=c[2]; }              // already read whole
     const last=items[items.length-1];
-    if(last&&last.r===c[0]&&last.s===s&&last.e===e){ last.ids.push(id); last.t+=' '+d.t; return; } // cells read together share a clip
-    items.push({ids:[id],t:d.t,r:c[0],s,e,f:fileOf(n,c[0])});
+    if(last&&last.r===c[0]&&last.s===s&&last.e===e){ last.ids.push(id); last.t+=' '+(d.v||d.t); return; } // cells read together share a clip
+    items.push({ids:[id],t:d.v||d.t,r:c[0],s,e,f:fileOf(n,c[0])});
   });
   return items;
 }
 function plUI(scroll){
   const it=PL.items[PL.i];
-  plWord.innerHTML=it?((LAYERED.has(PL.n)||SHRED.has(PL.n))?marked(PL.n,it.t.replace(/~/g,ZWJ)):esc(it.t.replace(/~/g,''))):'';
+  plWord.innerHTML=it?((LAYERED.has(PL.n)||SHRED.has(PL.n))?withStops(it.t.replace(/~/g,ZWJ),x=>marked(PL.n,x)):withStops(it.t.replace(/~/g,''),esc)):'';
   plMeta.innerHTML=`<b>Lesson ${PL.n}</b> · ${PL.i+1} of ${PL.items.length}`;
   plSeek.max=Math.max(0,PL.items.length-1); plSeek.value=PL.i;
   plPP.classList.toggle('on',PL.on); plPP.setAttribute('aria-label',PL.on?'Pause':'Play');
@@ -1220,11 +1241,11 @@ const out=LESSONS.map(Ls=>{
       const gtc=ph&&own.length>1?`;--gtc:${own.map(c=>`minmax(0,${Math.max(3,c.t.replace(/[^ء-يٱ]/g,'').length)}fr)`).join(' ')}`:'';
       return `<div class="row"${af}><div class="cells" style="--cols:${rc};--pcols:${PSPLIT.has(Ls.n)?pc:rc}${gtc}">${cellsFor(r).map((c,ci)=>{
         if(c.t==='✤') return `<span class="cell blank${c.wide?' wide':''}" aria-hidden="true">✤</span>`;
-        const id=++sid; store.set(id,{t:c.t,mode:Ls.mode,n:Ls.n,k:kk++});
+        const id=++sid, plain=unstop(c.t); store.set(id,{t:plain,v:c.t,mode:Ls.mode,n:Ls.n,k:kk++});
         const col=colRow[ci]||'k', txt=c.t.replace(/~/g,ZWJ);
-        let inner=marked(Ls.n,txt);
+        let inner=withStops(txt,x=>marked(Ls.n,x));
         if(Ls.mode==='letter') inner+=`<span class="nm">${esc(AR_NAME[c.t]||'')}</span><span class="en">${esc(nm(c.t))}</span>`;
-        return `<button type="button" class="cell ${col}${c.wide?' wide':''}${Ls.mode==='letter'?' letter':''}" data-id="${id}" lang="ar" aria-label="${esc(c.t)}, show spelling">${inner}</button>`;}).join('')}</div></div>`;
+        return `<button type="button" class="cell ${col}${c.wide?' wide':''}${Ls.mode==='letter'?' letter':''}" data-id="${id}" lang="ar" aria-label="${esc(plain)}${c.t.includes(STOP)?', with an end-of-verse circle':''}, show spelling">${inner}</button>`;}).join('')}</div></div>`;
     }).join('');
     const banner=pi===0?`<div class="banner" tabindex="0" aria-label="Lesson ${Ls.n} title: ${esc(TR[Ls.n])}, ${esc(LIT[Ls.n])}"><div class="lno">الدَّرۡسُ ${ORD[Ls.n]}</div><div class="ttl"><span>${Ls.ar}</span></div>
         <div class="tip" role="tooltip"><i>Ad-darsu ${ORD_TR[Ls.n]} · ${TR[Ls.n]}</i><span>“Lesson ${ORD_EN[Ls.n]}: ${LIT[Ls.n]}”</span><small>Green label = the lesson number. Red ribbon = the lesson title.</small></div></div>
@@ -1379,7 +1400,7 @@ function contentFor(d,id){
 }
 function contentBody(d){
   if(d.mode==='muq') return `<div class="bd"><div class="top"><div class="word">${layered(d.t)}</div></div><div class="whole">Read by letter names: <strong>${esc(MUQ[d.t]||'')}</strong></div><p class="script">Names with a ~ are stretched for 6 counts. Names written without one, like Alif, Raa, Haa and Ṭaa, are not stretched past 2.</p></div>`;
-  return breakdownHTML(d.t);
+  return breakdownHTML(d.t,{shown:d.v});
 }
 function closePanel(){ stopAudio(); if(panel){panel.remove();panel=null} if(current){current.classList.remove('on');current=null} }
 // wide screens with notes showing: the spelling goes in the column beside the page; otherwise right under the tapped row
