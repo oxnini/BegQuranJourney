@@ -143,6 +143,7 @@ h1,h2,h3{text-wrap:balance;line-height:1.2;margin:0;font-family:var(--serif);fon
 /* wide screens: the tapped word's spelling opens beside the page, above the notes, so the page itself stays still */
 .expand.side{border:3px double var(--b-ink);outline:1px solid var(--paper);margin:1px 1px 14px;box-shadow:0 8px 20px -14px rgb(0 0 0 / .45)}
 .expand.side::before{display:none}
+.cells>.expand{grid-column:1/-1;border-bottom:1px solid var(--grid)}
 .keys{display:none;margin:10px 0 0;padding-top:6px;border-top:1px dashed #BFB58A;font-size:.8rem;color:#6A6550}
 .keys kbd{font:700 .78rem var(--ui);border:1px solid #BFB58A;border-bottom-width:2px;background:var(--paper);padding:0 5px;border-radius:3px;color:var(--b-ink)}
 @media (hover:hover) and (min-width:761px){.keys{display:block}}
@@ -1388,7 +1389,7 @@ function fitRows(){
   rows.forEach(r=>r.style.removeProperty('--fitfs'));
   // measure every row first, then write, so the browser lays the page out once
   const need=rows.map(r=>{let k=1, fs=0;
-    for(const c of r.children){ if(!c.clientWidth||c.classList.contains('blank')) continue;
+    for(const c of r.children){ if(!c.clientWidth||c.classList.contains('blank')||c.classList.contains('expand')) continue;
       const cs=getComputedStyle(c), pad=parseFloat(cs.paddingLeft)+parseFloat(cs.paddingRight); fs=parseFloat(cs.fontSize);
       if(c.scrollWidth>c.clientWidth+1) k=Math.min(k,(c.clientWidth-pad-2)/(c.scrollWidth-pad));}
     return [r,k,fs];});
@@ -1419,7 +1420,7 @@ function fitInk(){
   }
 }
 const fitAll=()=>{fitRows();fitInk()};
-let fitT=0; const refit=()=>{clearTimeout(fitT);fitT=setTimeout(fitAll,120)};
+let fitT=0, fitW=innerWidth; const refit=()=>{ if(innerWidth===fitW) return; fitW=innerWidth; clearTimeout(fitT);fitT=setTimeout(fitAll,120)};
 fitAll(); if(document.fonts) document.fonts.ready.then(fitAll); addEventListener('resize',refit); addEventListener('load',fitAll);
 
 /* A few words still draw their colour layers a little out of line (the font widens ب under a stacked shadda next to آ),
@@ -1523,7 +1524,13 @@ function mount(){
   const side=sideMQ.matches&&!document.body.classList.contains('bookmode')&&current.closest('.lbody').querySelector('.lside');
   panel.classList.toggle('side',!!side);
   if(side){ if(panel.parentNode!==side) side.prepend(panel); side.scrollTop=0; }
-  else { const row=current.closest('.row'); if(row.nextSibling!==panel) row.after(panel); place(); }
+  else {
+    // right under the line the tapped word is on (on phones a book row wraps onto several lines), spanning the row
+    const cells=current.parentNode, y=current.offsetTop; let last=current;
+    for(let c=current.nextElementSibling;c;c=c.nextElementSibling){ if(c===panel) continue; if(c.offsetTop!==y) break; last=c; }
+    if(last.nextElementSibling!==panel) last.after(panel);
+    place();
+  }
 }
 function place(){
   if(!panel||!current) return;
@@ -1545,9 +1552,14 @@ document.getElementById('main').addEventListener('click',e=>{
   panel=document.createElement('div'); panel.className='expand';
   panel.innerHTML=`<button type="button" class="x">Close</button>`+contentFor(d,b.dataset.id)+`<p class="keys"><kbd>←</kbd> <kbd>→</kbd> <kbd>↑</kbd> <kbd>↓</kbd> move between ${d.mode==='letter'?'letters':'words'} · <kbd>Space</kbd> hear it · <kbd>Esc</kbd> close</p>`;
   mount(); fixLayers(panel);
-  if(!panel.classList.contains('side')&&panel.getBoundingClientRect().bottom>innerHeight) panel.scrollIntoView({block:'nearest',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
+  // bring as much of the panel into view as fits, but never scroll the tapped word off the top
+  if(!panel.classList.contains('side')){
+    const pb=panel.getBoundingClientRect().bottom, bot=innerHeight-(player.hidden?0:player.offsetHeight)-8;
+    if(pb>bot){ const room=b.getBoundingClientRect().top-navEl.offsetHeight-8; const dy=Math.min(pb-bot,Math.max(0,room));
+      if(dy>0) scrollBy({top:dy,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'}); }
+  }
 });
-addEventListener('resize',mount);
+let mountW=innerWidth; addEventListener('resize',()=>{ if(innerWidth===mountW) return; mountW=innerWidth; mount(); });
 if('IntersectionObserver' in window){
   const io=new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){ fetchRow(e.target.dataset.af).catch(()=>{}); io.unobserve(e.target); } }),{rootMargin:'300px 0px'});
   document.querySelectorAll('.row[data-af]').forEach(r=>io.observe(r));
