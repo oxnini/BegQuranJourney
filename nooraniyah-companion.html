@@ -64,6 +64,8 @@ h1,h2,h3{text-wrap:balance;line-height:1.2;margin:0;font-family:var(--serif);fon
   min-width:50px;height:28px;display:flex;align-items:center;justify-content:center;font-family:var(--ar);font-size:1.15rem;line-height:1;color:var(--b-ink);z-index:1}
 .book .pdfp{position:absolute;right:12px;bottom:6px;font-size:.8rem;font-weight:700;color:#6A6550;font-variant-numeric:tabular-nums;letter-spacing:.03em}
 .book+.book{margin-top:28px}
+/* the PDF file's own page number, on the frame, so it can be matched to a PDF viewer at a glance */
+.book .pdft{position:absolute;top:-1px;left:22px;z-index:1;background:var(--navy);color:#fff;font:700 .74rem var(--sc);text-transform:lowercase;letter-spacing:.06em;padding:1px 8px 2px;border-radius:0 0 3px 3px;font-variant-numeric:tabular-nums}
 .book>.sheet{container-type:inline-size}
 /* The pages of a lesson run down one column, in the book's order, at one natural width that does not follow the window.
    So zooming the browser simply makes every word bigger, until a page is as wide as the window. */
@@ -111,6 +113,7 @@ h1,h2,h3{text-wrap:balance;line-height:1.2;margin:0;font-family:var(--serif);fon
 .book.flow .cell{border-inline-start:0}
 .cells[style*="--fitfs"]>.cell{font-size:var(--fitfs)!important}.cell:hover{background-color:#FFF0A8}
 .cell.on{background:var(--sel);box-shadow:inset 0 0 0 3px var(--b-red)}
+.cell.ph{box-shadow:inset 0 0 0 2px var(--b-red);background-image:repeating-linear-gradient(-45deg,rgb(185 32 40 / .06) 0 6px,transparent 6px 12px)}
 .cell.wide{grid-column:span 2}
 .cell.blank{cursor:default;color:var(--navy)}
 .cell.blank:hover{background-color:var(--paper)}
@@ -178,6 +181,22 @@ h1,h2,h3{text-wrap:balance;line-height:1.2;margin:0;font-family:var(--serif);fon
 }
 .bd .step.silent .s{background:transparent;color:var(--m-silent)}
 .bd .notes2{margin:8px 0 0;padding:0;list-style:none;font-size:.85rem;color:#4A4636;display:flex;flex-direction:column;gap:2px}
+.bd .whole .say,.bd .lxl>summary{font-family:var(--sc);text-transform:lowercase;letter-spacing:.05em;font-weight:700;color:var(--b-green)}
+.bd .whole .say{margin-right:6px}
+.bd .whole .syl{font-weight:700;font-size:1.2rem;letter-spacing:.02em}
+.bd .whole .syl{word-spacing:.6em}
+.bd .whole .w{white-space:nowrap;word-spacing:0}
+.bd .whole .joined{margin-left:6px;overflow-wrap:anywhere}
+.bd.long .whole{margin-top:4px}
+.bd.long .whole .syl{font-size:1.3rem;line-height:1.55}
+.bd.long .whole .joined{display:block;margin:2px 0 0;color:#4A4636}
+.bd.long .whole .joined strong{font-size:1.05rem}
+.bd .lxl{margin-top:10px;border-top:1px dashed #BFB58A}
+.bd details.lxl>summary{min-height:40px;gap:8px;font-size:.95rem;flex-wrap:wrap}
+.bd details.lxl>summary::before{border-left-color:var(--b-green)}
+.bd .lxl>summary small{font:500 .82rem var(--ui);letter-spacing:0;text-transform:none;color:var(--muted)}
+.bd .lxl[open]>summary{margin-bottom:6px}
+.bd .lxl .script{border-top:0;padding-top:0}
 .bd .script{margin-top:8px;font-size:.92rem;color:#4A4636;border-top:1px dashed #BFB58A;padding:6px 2px 0}
 .bd .script .say{font-family:var(--sc);text-transform:lowercase;letter-spacing:.05em;font-weight:700;color:var(--b-green);margin-right:4px}
 .bd .script em{font-style:normal;color:var(--b-ink);font-weight:700}
@@ -211,7 +230,10 @@ h1,h2,h3{text-wrap:balance;line-height:1.2;margin:0;font-family:var(--serif);fon
 .hear-btn:focus-visible{outline:3px solid var(--link);outline-offset:2px}
 .hear small{font-size:.82rem;color:#6A6550;line-height:1.3}
 .expand>.hear,.expand>.hears{margin:0 0 10px}
-.hears{display:flex;flex-direction:column;gap:6px}
+.hears{display:flex;flex-wrap:wrap;align-items:flex-start;gap:6px 16px;padding-right:70px}
+.hears>.hear{flex-direction:column;gap:3px;text-align:center}
+.hears>.hear small{max-width:7.5em;line-height:1.2}
+.hears>.by{flex-basis:100%;font-size:.76rem;color:#8A8468;margin-top:-2px}
 .hears>.hear{margin-top:0}
 @media (prefers-reduced-motion:reduce){.hear-btn{transition:none}.hear-btn:active{transform:none}}
 
@@ -368,7 +390,8 @@ details.lfold>summary::before{display:inline-block;margin-right:10px;vertical-al
 .player[hidden]{display:none}
 .player .pl{max-width:760px;margin:0 auto;padding:8px max(16px,env(safe-area-inset-left,0px)) 10px;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:4px 12px}
 .pl-info{display:flex;align-items:baseline;gap:10px;min-width:0}
-.pl-word{font-family:var(--ar);font-size:1.9rem;line-height:1.5;direction:rtl;white-space:nowrap}
+.pl-word{font-family:var(--ar);font-size:1.9rem;line-height:1.5;direction:rtl;white-space:nowrap;min-width:0;overflow:hidden;text-overflow:ellipsis;flex:0 1 auto}
+.pl-meta{flex:0 1 auto;min-width:0}
 .pl-meta{font-size:.88rem;color:#55513F;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pl-meta b{font-family:var(--sc);text-transform:lowercase;letter-spacing:.05em;color:var(--b-green)}
 .pl-ctl{display:flex;align-items:center;gap:6px}
@@ -382,6 +405,7 @@ details.lfold>summary::before{display:inline-block;margin-right:10px;vertical-al
 .pl-seek{width:100%;margin:0;accent-color:var(--b-green);height:28px}
 /* speed: 0.5× to 2×, a tenth at a time */
 .pl-opts{display:flex;align-items:center;gap:8px;justify-self:end}
+.pl-ph[hidden]{display:none}
 .pl-rate{display:flex;align-items:center;border:1px solid #BFB58A;background:#FFFDF1}
 /* repeat: off, this word, or this row of the book */
 .pl-rep{appearance:none;display:inline-flex;align-items:center;gap:5px;height:38px;padding:0 10px;border:1px solid #BFB58A;border-radius:0;background:#FFFDF1;color:var(--b-ink);cursor:pointer;font:700 .92rem var(--sc);text-transform:lowercase;letter-spacing:.05em;white-space:nowrap}
@@ -454,10 +478,12 @@ body.pl-on{padding-bottom:calc(140px + env(safe-area-inset-bottom,0px))}
   .bd .notes2{font-size:.78rem}
   .hear small{font-size:.76rem}
   .hear-btn{width:32px;height:32px}
-  .hears{flex-direction:row;flex-wrap:wrap;gap:6px 18px}
-  .hear small{max-width:9em}
   .pl-rep .lg{display:none}
   .pl-rep{padding:0 8px}
+  /* phones: the bar and the options get a full line each, so the seek bar is long enough to use */
+  .pl-seek,.pl-opts{grid-column:1/-1}
+  .pl-opts{justify-self:stretch;justify-content:space-between;gap:6px}
+  .pl-meta{font-size:.78rem}
   .lettercard h3{font-size:1.05rem}
   .lettercard p{font-size:.88rem}
   .lettercard .big{font-size:2.8rem}
@@ -512,7 +538,7 @@ body.pl-on{padding-bottom:calc(140px + env(safe-area-inset-bottom,0px))}
     <button type="button" class="cl" aria-label="Close the player"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button>
   </div>
   <input type="range" class="pl-seek" min="0" max="0" step="1" value="0" aria-label="Skip to word">
-  <div class="pl-opts"><button type="button" class="pl-rep" aria-label="Repeat: off"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h10v3l4-4-4-4v3H5v6h2zM17 17H7v-3l-4 4 4 4v-3h12v-6h-2z" fill="currentColor"/></svg><span class="lg">Repeat&nbsp;</span><b>off</b></button>
+  <div class="pl-opts"><button type="button" class="pl-rep pl-ph" hidden aria-label="Play by phrase"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h8M3 12h12M3 17h18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" fill="none"/></svg><span class="lg">By&nbsp;</span><b>phrases</b></button><button type="button" class="pl-rep" aria-label="Repeat: off"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h10v3l4-4-4-4v3H5v6h2zM17 17H7v-3l-4 4 4 4v-3h12v-6h-2z" fill="currentColor"/></svg><span class="lg">Repeat&nbsp;</span><b>off</b></button>
   <div class="pl-rate" role="group" aria-label="Speed"><button type="button" class="sl" aria-label="Slower">−</button><output aria-live="polite">1.0×</output><button type="button" class="sf" aria-label="Faster">+</button></div></div>
   <p class="keys pl-keys"><kbd>Space</kbd> play or pause · <kbd>←</kbd> next word · <kbd>→</kbd> word before · <kbd>R</kbd> repeat</p>
 </div></div>
@@ -590,7 +616,7 @@ function tokenize(w){
 
 /* Turn a word into the teacher's letter-by-letter steps. */
 function analyse(word){
-  const cl=tokenize(word), steps=[], syl=[];
+  const cl=tokenize(word), steps=[], syl=[], brk=[]; // brk: this syllable starts a new word
   let last=null; // vowel of the previous voiced letter: a,i,u,an,in,un,madd,leen
   const setLast=s=>{syl[syl.length-1]=s};
   // The joining alif. Now and then the book prints it as a plain ا after a one-letter prefix (بِالصَّبۡرِ, Lesson 14):
@@ -607,7 +633,7 @@ function analyse(word){
       if(!syl.length){
         // with ال it is “a”; on a verb (ٱهۡدِنَا) it is “i”, or “u” when the third letter has a damma
         const vw=(cl[i+1]&&cl[i+1].base==='ل')?'a':(cl[i+2]&&cl[i+2].m.includes(D))?'u':'i';
-        syl.push(vw); last=vw; mk('waṣl','silent'); st.say=vw; st.note=`Starting the word here, say “${vw}”. In the middle of reading it is silent.`;
+        syl.push(vw); brk.push(c.ws); last=vw; mk('waṣl','silent'); st.say=vw; st.note=`Starting the word here, say “${vw}”. In the middle of reading it is silent.`;
       }
       else { mk('waṣl','silent'); st.say='—'; st.silent=true; st.note='Joining alif: silent here, because you carry on from the letter before.'; }
       steps.push(st); return;
@@ -669,7 +695,7 @@ function analyse(word){
     if(has(S)){
       mk('sukoon','sukoon');
       if(syl.length){ setLast(syl[syl.length-1]+on); st.say=syl[syl.length-1]; }
-      else { syl.push(on); st.say=on; }
+      else { syl.push(on); brk.push(c.ws); st.say=on; }
       if(('وىي'.includes(b))&&last==='a'){ st.note='Leen: a soft, short sound, glided from the fatha before it.'; last='leen'; }
       else { last=null; st.note='Sukoon: no vowel. Join it to the letter before.'; }
       if(QAL.includes(b)){ st.note='Sukoon on a qalqala letter: give it a small bounce.'; st.bounce=true; }
@@ -697,12 +723,14 @@ function analyse(word){
       if(has(SWAW)&&v==='u'){ s=on+'uu'; mk('small waw','madd'); st.note='Small waw: stretch “uu”, 2 counts.'; v='madd'; }
       if(has(SYEH)&&v==='i'){ s=on+'ii'; mk('small yaa','madd'); st.note='Small yaa: stretch “ii”, 2 counts.'; v='madd'; }
       if(v==='an'&&b==='ا') {}
-      syl.push(s); st.say=s; last=v; steps.push(st); return;
+      syl.push(s); brk.push(c.ws); st.say=s; last=v; steps.push(st); return;
     }
     // A letter with no mark at all (lessons 1–2).
     st.say=on; steps.push(st);
   });
-  return {steps, together:syl.filter(Boolean).join('-')};
+  // syllables joined by - inside a word, and by a space where a new word starts, so a phrase stays readable
+  let together=''; syl.forEach((x,i)=>{ if(!x) return; if(together) together+=brk[i]?' ':'-'; together+=x; });
+  return {steps, together};
 }
 
 /* ---------- symbols ---------- */
@@ -782,7 +810,7 @@ const LESSONS=[
  {n:5,ar:'الحُرُوفُ المُنَوَّنَة (التَّنۡوِين)',en:'Letters with tanween',fs:'clamp(1.6rem,5.6vw,2.35rem)',
   notes:['Tanween means the mark is <b>doubled</b>, which adds an <b>n</b>: <span class="c-tan"><b>fathatain</b></span> an · <span class="c-tan"><b>kasratain</b></span> in · <span class="c-tan"><b>dammatain</b></span> un.','The alif (or ى) after fathatain is <b>not read</b>. It only holds the tanween: <span class="ar">مًا</span> is “man”.','The box on PDF page 9 groups letters by where they come from (throat, lips, tongue). See “Key rules”.'],
   ex:['مًا','بٍ'],
-  pages:[{pdf:8,book:11,rows:['مًا مٍ مٌ بًا بٍ بٌ وًا وٍ','وٌ فًا فٍ فٌ ثًا ثٍ ثٌ ذًى','ذٍ ذٌ ظًا ظٍ ظٌ زًا زٍ زٌ','سًا سٍ سٌ صًا صٍ صٌ ةً تٍ','ةٌ دًى دٍ دٌ طًا طٍ طٌ رًا','رٍ رٌ نًا نٍ نٌ لًا لٍ لٌ','ضًا ضٍ ضٌ ىًا ىٍ ىٌ شًا شٍ','شٌ جًا جٍ جٌ كًا كٍ كٌ قًا']},
+  pages:[{pdf:8,book:11,rows:['مًا مٍ مٌ بًا بٍ بٌ وًا وٍ','وٌ فًا فٍ فٌ ثًا ثٍ ثٌ ذًى','ذٍ ذٌ ظًا ظٍ ظٌ زًا زٍ زٌ','سًا سٍ سٌ صًا صٍ صٌ ةً تٍ','ةٌ دًى دٍ دٌ طًا طٍ طٌ رًا','رٍ رٌ نًا نٍ نٌ لًا لٍ لٌ','ضًا ضٍ ضٌ يًا ىٍ ىٌ شًا شٍ','شٌ جًا جٍ جٌ كًا كٍ كٌ قًا']},
          {pdf:9,book:12,rows:['قٍ قٌ خًا خٍ خٌ غًا غٍ غٌ','حًا حٍ حٌ عًا عٍ عٌ هًا هٍ','هٌ ءً ءٍ ءٌ'],foot:'Throat letters: أ ه ع ح غ خ · Lip letters: ف و ب م · Tongue letters: all the rest.'}]},
  {n:6,ar:'تَدۡرِيبَاتٌ عَلَى الحَرَكَاتِ وَالتَّنۡوِين',en:'Practice: harakat and tanween in real words',fs:'clamp(1.3rem,4.6vw,2.15rem)',
   notes:['Every letter in these words has a mark, so there are no long vowels yet. Spell each letter, then read the word.',
@@ -799,9 +827,9 @@ const LESSONS=[
   notes:['<b>Madd</b>: the letter has <b>no mark</b> and comes after its matching haraka. Fatha then ا = aa · damma then و = uu · kasra then ى = ii. Stretch 2 counts.','The book writes waw-madd with an extra alif (<span class="ar">بُوا</span>). That alif is silent.',
    '<b>Leen</b> (from PDF page 12, row 4): و or ى with a <span class="c-sukoon"><b>sukoon</b></span> after a fatha. It glides softly: <span class="ar">تَوۡ</span> “taw”, <span class="ar">تَىۡ</span> “tay”.'],
   ex:['بَا','تَوۡ'],
-  pages:[{pdf:11,book:14,rows:['بَا بُوا بِى تَا تُوا تِى ثَا','ثُوا ثِى حَا حُوا حِى خَا خُوا','خِى رَا رُوا رِى زَا زُوا زِى','طَا طُوا طِى ظَا ظُوا ظِى فَا','فُوا فِى هَا هُوا هِى ىَا ىُوا','ىِى ءَا أُوا إِى جَا جُوا جِى','دَا دُوا دِى ذَا ذُوا ذِى سَا','سُوا سِى شَا شُوا شِى صَا صُوا','صِى ضَا ضُوا ضِى عَا عُوا عِى']},
+  pages:[{pdf:11,book:14,rows:['بَا بُوا بِى تَا تُوا تِى ثَا','ثُوا ثِى حَا حُوا حِى خَا خُوا','خِى رَا رُوا رِى زَا زُوا زِى','طَا طُوا طِى ظَا ظُوا ظِى فَا','فُوا فِى هَا هُوا هِى يَا يُوا','يِى ءَا أُوا إِى جَا جُوا جِى','دَا دُوا دِى ذَا ذُوا ذِى سَا','سُوا سِى شَا شُوا شِى صَا صُوا','صِى ضَا ضُوا ضِى عَا عُوا عِى']},
          {pdf:12,book:15,rows:['غَا غُوا غِى قَا قُوا قِى كَا','كُوا كِى لَا لُوا لِى مَا مُوا','مِى نَا نُوا نِى وَا وُوا وِى','تَوۡ تَىۡ ثَوۡ ثَىۡ دَوۡ دَىۡ ذَوۡ','ذَىۡ رَوۡ رَىۡ زَوۡ زَىۡ سَوۡ سَىۡ','شَوۡ شَىۡ صَوۡ صَىۡ ضَوۡ ضَىۡ طَوۡ','طَىۡ ظَوۡ ظَىۡ لَوۡ لَىۡ نَوۡ نَىۡ','أَوۡ أَىۡ بَوۡ بَىۡ جَوۡ جَىۡ حَوۡ','حَىۡ خَوۡ خَىۡ عَوۡ عَىۡ غَوۡ غَىۡ','فَوۡ فَىۡ قَوۡ قَىۡ كَوۡ كَىۡ مَوۡ']},
-         {pdf:13,book:16,rows:['مَىۡ وَوۡ وَىۡ هَوۡ هَىۡ ىَوۡ ىَىۡ'],foot:'Box on this page: Sun letters ت ث د ذ ر ز س ش ص ض ط ظ ل ن · Moon letters ا ب ج ح خ ع غ ف ق ك م و ه ى. See “Key rules”.'}]},
+         {pdf:13,book:16,rows:['مَىۡ وَوۡ وَىۡ هَوۡ هَىۡ يَوۡ يَىۡ'],foot:'Box on this page: Sun letters ت ث د ذ ر ز س ش ص ض ط ظ ل ن · Moon letters ا ب ج ح خ ع غ ف ق ك م و ه ى. See “Key rules”.'}]},
  {n:9,ar:'تَدۡرِيبَاتٌ عَلَى التَّنۡوِينِ وَأَحۡرُفِ المَدِّ الثَّلَاثَةِ وَحَرۡفَيِ اللِّين',en:'Practice: tanween, the 3 madd letters and the 2 leen letters',fs:'clamp(1.3rem,4.6vw,2.15rem)',video:'https://www.youtube.com/watch?v=mNYli6aW_v8&t=1041s',
   notes:['Everything from Lessons 4–8 in real words. A letter with <b>no mark</b> is a madd letter, so stretch it.',
    '<b>The ~ squiggle</b> appears on <span class="ar">جَآءَ · شَآءَ · مَآءٍ · عَطَآءً</span>. A hamza comes right after, so stretch <b>4–5 counts</b>.',
@@ -969,12 +997,20 @@ function breakdownHTML(word,opts={}){
     ${s.say&&s.say!=='—'?`<span class="s">${esc(s.say)}</span>`:s.say==='—'?'<span class="s">silent</span>':''}</li>`).join('');
   const notes=[...new Set(r.steps.map(s=>s.note).filter(Boolean))];
   const script=r.steps.map(s=>`${esc(s.name)} ${s.marks.map(x=>`<span class="c-${x.cls}">${esc(x.label.replace(' (no mark)',''))}</span>`).join(' ')} <em>${s.say==='—'?'(skip)':esc(s.say)}</em>`).join(' · ');
-  return `<div class="bd">${opts.title?`<div class="eyebrow">${esc(opts.title)}</div>`:''}
-    <div class="top"><div class="word">${opts.shown&&opts.shown.includes(STOP)?withStops(opts.shown.replace(/~/g,ZWJ),layered):layered(w)}</div><ol class="steps${r.steps.length>4?' many':''}">${steps}</ol></div>
-    ${voiced?`<div class="whole">Together: <strong>${esc(r.together)}</strong>${r.together.includes('-')?` → <strong>${esc(whole)}</strong>`:''}</div>`:''}
-    ${voiced?`<div class="script"><span class="say">Out loud</span> ${script} → <em>${esc(whole)}</em></div>`:'<p class="script">These are letters joined together. Name each one in order, from right to left.</p>'}
+  // Short single words show their letter boxes straight away. Long words and phrases lead with the syllables,
+  // and keep the boxes and the spoken spelling one tap away, so the panel stays short.
+  const notesH=notes.length?`<ul class="notes2">${notes.map(n=>`<li>${esc(n)}</li>`).join('')}</ul>`:'';
+  const longOne=!opts.title&&(r.steps.length>6||/\s/.test(w.trim()));
+  const boxes=`<ol class="steps${r.steps.length>4?' many':''}">${steps}</ol>`;
+  const spoken=voiced?`<div class="script"><span class="say">Out loud</span> ${script} → <em>${esc(whole)}</em></div>`:'<p class="script">These are letters joined together. Name each one in order, from right to left.</p>';
+  const wordH=`<div class="word">${opts.shown&&opts.shown.includes(STOP)?withStops(opts.shown.replace(/~/g,ZWJ),layered):layered(w)}</div>`;
+  const together=voiced?`<div class="whole${longOne?' big':''}"><span class="say">Together</span> <span class="syl">${r.together.split(' ').map(x=>`<span class="w">${esc(x)}</span>`).join(' ')}</span>${r.together.includes('-')?`<span class="joined">→ <strong>${esc(whole)}</strong></span>`:''}</div>`:'';
+  return `<div class="bd${longOne?' long':''}">${opts.title?`<div class="eyebrow">${esc(opts.title)}</div>`:''}
+    ${longOne?`<div class="top">${wordH}</div>${together}
+    <details class="fold lxl"><summary>Letter by letter <small>${r.steps.length} letters</small></summary>${boxes}${spoken}${notesH}</details>`
+    :`<div class="top">${wordH}${boxes}</div>${together}${spoken}`}
     ${parts?`<p class="vnote">${VEND} <b>End of a verse: stop here</b>, then go on with the next ${opts.shown.trim().endsWith(STOP)?'box':'words'}.${stops.length?` Stopping changes the ending: ${stops.map(([w,a,b])=>`<span class="ar">${esc(w)}</span> ${esc(a)} → <b>${esc(b)}</b>`).join(', ')}.`:''} The circle itself is not read.</p>`:''}
-    ${notes.length?`<ul class="notes2">${notes.map(n=>`<li>${esc(n)}</li>`).join('')}</ul>`:''}
+    ${longOne?'':notesH}
   </div>`;
 }
 function letterHTML(ch,hear){
@@ -997,7 +1033,23 @@ const CLIPS=/*CLIPS*/{"1":[[0,0.08,1.18],[0,1.48,2.65],[0,2.95,4.09],[0,4.4,5.6]
 const HEAR=/*HEAR*/{"1":"Hear the name","2":"Hear the letter names","3":"Hear it read","4":"Hear it spelled out","5":"Hear it spelled out","6":"Hear it read","7":"Hear it spelled out","8":"Hear it spelled out","9":"Hear it read","10":"Hear it spelled out","11":"Hear it read","12":"Hear it read","13":"Hear it read","14":"Hear it read","15":"Hear it read","16":"Hear it read","17":"Hear it read"}/*END*/;
 const clipOf=d=>(CLIPS[d.n]||[])[d.k]||null;
 const fileOf=(n,r)=>`audio/l${n}r${String(r).padStart(2,'0')}.mp3`;
-const PL={n:0,items:[],i:0,on:false,timer:0,tok:0,rate:1,rep:0}; // the whole-lesson player (rep: 0 off, 1 this word, 2 this row)
+/* Phrases: boxes the teacher reads on from one to the next, as one verse or one breath ([first cell, last cell] in book order).
+   Where he reads straight on (kind 4 on either side), each box's own clip ends or starts mid-breath, so the whole phrase is offered too.
+   Where he spells the boxes apart (سِرَاجًا · وَهَّاجًا), his whole readings are joined with a short pause.
+   Every breath link was checked against the uncut tracks (13, 14, 16, 17): one box's clip ends where the next one starts,
+   except where the two clips overlap; a third value is that overlap in seconds, cut from the start of the later box. */
+const PHRASES={13:[[54,55,.05]],14:[[21,22]],15:[[8,9],[10,11]],16:[[9,10]],
+  17:[[3,4],[10,11],[17,18],[20,21],[23,24,.3],[25,26,.3],[31,32],[34,35],[37,38],[40,41]]};
+const phraseOf=d=>(PHRASES[d.n]||[]).find(([a,b])=>d.k>=a&&d.k<=b)||null;
+const readPart=c=>c.length>4?[c[4],c[5]]:[c[1],c[2]]; // spelled-out cells: only the closing whole reading
+function phraseSegs(n,[a,b,skip=0]){
+  const segs=[];
+  for(let k=a;k<=b;k++){ const c=CLIPS[n][k], p=CLIPS[n][k-1], [s,e]=readPart(c);
+    segs.push({f:fileOf(n,c[0]),s:k>a?s+skip:s,e,gap:k>a&&!(c[3]===4||p[3]===4)?.35:0}); }
+  return segs;
+}
+const idsOf=(n,[a,b])=>{ const r=[]; store.forEach((d,id)=>{ if(d.n===n&&d.k>=a&&d.k<=b) r.push(id); }); return r; };
+const PL={n:0,items:[],i:0,on:false,timer:0,tok:0,rate:1,rep:0,byPh:true}; // the whole-lesson player (rep: 0 off, 1 this word, 2 this row)
 /* Playback goes through one <audio> element, the way music players work, not through Web Audio:
    phones then play it even with the ring/silent switch on, and keep playing with the screen locked.
    Each row file is decoded once, and a clip is cut from it as a small WAV, so it starts and stops exactly on the word. */
@@ -1045,14 +1097,32 @@ function stretch(x,r,sr){
   return y.subarray(0,len);
 }
 // cut [s,e] seconds out of a decoded row as a 16-bit mono WAV at the given speed, with 6 ms fades so it doesn't click
-function wavOf(buf,s,e,rate=1){
-  const sr=buf.sampleRate, src=buf.getChannelData(0);
-  const ch=stretch(src.subarray(Math.max(0,Math.round(s*sr)),Math.min(src.length,Math.round(e*sr))),rate,sr), a=0, n=ch.length, fade=Math.min(Math.round(sr*.006),n>>1);
+const cut=(buf,s,e)=>{ const sr=buf.sampleRate, src=buf.getChannelData(0); return src.subarray(Math.max(0,Math.round(s*sr)),Math.min(src.length,Math.round(e*sr))); };
+function wavOf(buf,s,e,rate=1){ return wavFrom(cut(buf,s,e),buf.sampleRate,rate); }
+function wavFrom(x,sr,rate=1){
+  const ch=stretch(x,rate,sr), a=0, n=ch.length, fade=Math.min(Math.round(sr*.006),n>>1);
   const out=new DataView(new ArrayBuffer(44+n*2)), str=(o,t)=>{for(let i=0;i<t.length;i++)out.setUint8(o+i,t.charCodeAt(i))};
   str(0,'RIFF');out.setUint32(4,36+n*2,true);str(8,'WAVEfmt ');out.setUint32(16,16,true);out.setUint16(20,1,true);out.setUint16(22,1,true);
   out.setUint32(24,sr,true);out.setUint32(28,sr*2,true);out.setUint16(32,2,true);out.setUint16(34,16,true);str(36,'data');out.setUint32(40,n*2,true);
   for(let i=0;i<n;i++){ let v=ch[a+i]; if(i<fade) v*=i/fade; else if(i>=n-fade) v*=(n-1-i)/fade; v=Math.max(-1,Math.min(1,v)); out.setInt16(44+i*2,v<0?v*0x8000:v*0x7FFF,true); }
   return URL.createObjectURL(new Blob([out],{type:'audio/wav'}));
+}
+// several pieces, from one or more row files, joined into one clip (a phrase that runs across boxes and rows)
+function segsUrl(segs,rate=1){
+  if(segs.length===1) return clipUrl(segs[0].f,segs[0].s,segs[0].e,rate);
+  const key=JSON.stringify(segs)+'|'+rate;
+  if(!wavs.has(key)){
+    wavs.set(key,Promise.all(segs.map(g=>decodeRow(g.f))).then(bufs=>{
+      const sr=bufs[0].sampleRate, parts=[]; let prev=null;
+      segs.forEach((g,i)=>{ if(g.gap) parts.push(new Float32Array(Math.round(g.gap*sr)));
+        // two pieces that meet in the same row file are one stretch of sound: take it in one cut, with no seam
+        if(prev&&prev.f===g.f&&Math.abs(prev.e-g.s)<.02&&!g.gap){ prev={f:g.f,s:prev.s,e:g.e}; parts[parts.length-1]=cut(bufs[i],prev.s,prev.e); return; }
+        prev={f:g.f,s:g.s,e:g.e}; parts.push(cut(bufs[i],g.s,g.e)); });
+      const all=new Float32Array(parts.reduce((n,p)=>n+p.length,0)); let o=0; parts.forEach(p=>{ all.set(p,o); o+=p.length; });
+      return wavFrom(all,sr,rate);
+    }).catch(err=>{wavs.delete(key);throw err}));
+  }
+  return wavs.get(key);
 }
 async function clipUrl(f,s,e,rate=1){
   const key=f+'|'+s+'|'+e+'|'+rate;
@@ -1073,7 +1143,7 @@ function playUrl(url,onend){
   const p=AEL.play(); if(p&&p.then) p.then(()=>{primed=true},()=>{});
   return p;
 }
-function warm(d){ const c=clipOf(d); if(!c) return; decodeRow(fileOf(d.n,c[0])).catch(()=>{}); }
+function warm(d){ const c=clipOf(d); if(!c) return; decodeRow(fileOf(d.n,c[0])).catch(()=>{}); const ph=phraseOf(d); if(ph) phraseSegs(d.n,ph).forEach(g=>decodeRow(g.f).catch(()=>{})); }
 function stopAudio(){
   clearTimeout(PL.timer); PL.tok++; playTok++;
   try{ AEL.pause(); }catch(e){}
@@ -1104,8 +1174,11 @@ function hearHTML(d,id){
   const cap=(c[3]===1?'This letter’s sounds, read together':({'Hear the name':'Letter name','Hear the letter names':'Letter names','Hear it read':'Read aloud'}[lbl]||'Spelled out'))+(c[3]===5?' · from Lesson 8':'')+' · Sheikh Haqqani';
   const one=(lbl,cap,part)=>`<div class="hear"><button type="button" class="hear-btn" data-id="${id}"${part?` data-part="${part}"`:''} aria-label="${esc(lbl)}" title="${esc(lbl)}">${ICON}</button><small data-cap="${esc(cap)}">${esc(cap)}</small></div>`;
   // spelled-out words also get the teacher's closing reading of the whole word
-  if(c.length>4) return `<div class="hears">${one(lbl,cap)}${one('Hear the whole word','Whole word · Sheikh Haqqani','w')}</div>`;
-  return one(lbl,cap);
+  const ph=phraseOf(d), withNext=ph&&d.k===ph[0];
+  if(c.length<=4&&!ph) return one(lbl,cap);
+  // several recordings: a row of buttons with a short label under each, and the reader named once
+  const short=cap.split(' · ').filter(x=>x!=='Sheikh Haqqani').join(' · ');
+  return `<div class="hears">${one(lbl,short)}${c.length>4?one('Hear the whole word','Whole word','w'):''}${ph?one(`Hear the whole phrase, with the ${withNext?'next box':'box before'}`,'Whole phrase','p'):''}<span class="by">Sheikh Haqqani</span></div>`;
 }
 async function playClip(btn){
   const d=store.get(+btn.dataset.id), c=d&&clipOf(d), t=btn.parentNode.querySelector('small'); if(!c) return;
@@ -1116,7 +1189,7 @@ async function playClip(btn){
   try{
     if(!decoder()) throw new Error('no decoder');
     const [s0,s1]=btn.dataset.part==='w'?[c[4],c[5]]:[c[1],c[2]];
-    const url=await clipUrl(fileOf(d.n,c[0]),s0,s1);
+    const url=btn.dataset.part==='p'?await segsUrl(phraseSegs(d.n,phraseOf(d))):await clipUrl(fileOf(d.n,c[0]),s0,s1);
     if(tok!==playTok) return; // something else started meanwhile
     hearBtn=btn; btn.classList.add('playing');
     await playUrl(url,()=>{ btn.classList.remove('playing'); if(hearBtn===btn) hearBtn=null; });
@@ -1136,6 +1209,10 @@ function lessonItems(n){
   const items=[];
   store.forEach((d,id)=>{
     if(d.n!==n) return; const c=clipOf(d); if(!c) return;
+    // by phrase: boxes read on into each other play as one item, highlighted together
+    const ph=PL.byPh&&phraseOf(d);
+    if(ph){ if(d.k!==ph[0]) return; const ids=idsOf(n,ph), segs=phraseSegs(n,ph);
+      items.push({ids,t:ids.map(x=>store.get(x)).map(x=>x.v||x.t).join(' '),r:c[0],segs}); return; }
     let s,e;
     if(c.length>4){ s=c[4]; e=c[5]; }      // spelled out: just the reading at the end
     else if(c[3]===2) return;             // spelled out, but no whole-word reading was found
@@ -1170,14 +1247,15 @@ function plUI(scroll){
     if(out(r)||(ahead&&out(ahead.getBoundingClientRect())&&r.top>top+40)) c.scrollIntoView({block:'start',behavior:smooth()});
   }
 }
+const itemUrl=(it,rate)=>it.segs?segsUrl(it.segs,rate):clipUrl(it.f,it.s,it.e,rate);
 async function plGo(i,scroll=true){
   stopAudio(); const tok=++PL.tok;
   PL.i=Math.max(0,Math.min(i,PL.items.length-1)); PL.on=true; plUI(scroll); plSession();
   const it=PL.items[PL.i]; if(!it||!decoder()){ PL.on=false; plUI(); return; }
   try{
-    const url=await clipUrl(it.f,it.s,it.e,PL.rate);
+    const url=await itemUrl(it,PL.rate);
     if(tok!==PL.tok) return;
-    const nx=PL.items[PL.i+1]; if(nx) clipUrl(nx.f,nx.s,nx.e,PL.rate).catch(()=>{}); // have the next word ready
+    const nx=PL.items[PL.i+1]; if(nx) itemUrl(nx,PL.rate).catch(()=>{}); // have the next word ready
     await playUrl(url,()=>{
       // repeat: the same word again (with a longer gap, to say it yourself), or back to the start of this book row after its last word
       const me=PL.items[PL.i], after=PL.items[PL.i+1];
@@ -1206,6 +1284,7 @@ function plSession(){
 function plOpen(n){
   if(PL.n!==n){ PL.n=n; PL.items=lessonItems(n); PL.i=0; }
   else if(PL.i>=PL.items.length-1) PL.i=0;
+  plPh.hidden=!PHRASES[n];
   player.hidden=false; document.body.classList.add('pl-on');
   closePanel(); plGo(PL.i);
 }
@@ -1214,7 +1293,20 @@ plPP.addEventListener('click',()=>{ if(PL.on) stopAudio(); else plGo(PL.i); });
 player.querySelector('.pv').addEventListener('click',()=>plGo(PL.i-1));
 player.querySelector('.nx').addEventListener('click',()=>plGo(PL.i+1));
 player.querySelector('.cl').addEventListener('click',plClose);
-const plRep=player.querySelector('.pl-rep');
+// words or phrases: in the phrase lessons, boxes the teacher reads on into each other can play as one
+const plPh=player.querySelector('.pl-ph');
+function setPh(on){
+  PL.byPh=on; plPh.querySelector('b').textContent=on?'phrases':'words'; plPh.classList.toggle('on',on);
+  plPh.setAttribute('aria-label','Play by '+(on?'phrase':'word')+'. Switch to '+(on?'words':'phrases'));
+  try{localStorage.setItem('nq-ph',on?'1':'0')}catch(e){}
+}
+try{ setPh(localStorage.getItem('nq-ph')!=='0'); }catch(e){ setPh(true); }
+plPh.addEventListener('click',()=>{
+  const was=PL.on, id=(PL.items[PL.i]||{ids:[]}).ids[0]; setPh(!PL.byPh);
+  if(!PL.n) return; PL.items=lessonItems(PL.n); const j=PL.items.findIndex(it=>it.ids.includes(id)); PL.i=Math.max(0,j);
+  if(was) plGo(PL.i,false); else plUI();
+});
+const plRep=player.querySelector('.pl-rep:not(.pl-ph)');
 plRep.addEventListener('click',()=>{
   PL.rep=(PL.rep+1)%3; const w=['off','word','row'][PL.rep];
   plRep.querySelector('b').textContent=w; plRep.classList.toggle('on',PL.rep>0); plRep.setAttribute('aria-label','Repeat: '+(PL.rep?'this '+w:'off'));
@@ -1271,8 +1363,8 @@ const out=LESSONS.map(Ls=>{
     const banner=pi===0?`<div class="banner" tabindex="0" aria-label="Lesson ${Ls.n} title: ${esc(TR[Ls.n])}, ${esc(LIT[Ls.n])}"><div class="lno">الدَّرۡسُ ${ORD[Ls.n]}</div><div class="ttl"><span>${Ls.ar}</span></div>
         <div class="tip" role="tooltip"><i>Ad-darsu ${ORD_TR[Ls.n]} · ${TR[Ls.n]}</i><span>“Lesson ${ORD_EN[Ls.n]}: ${LIT[Ls.n]}”</span><small>Green label = the lesson number. Red ribbon = the lesson title.</small></div></div>
       <div class="entitle"><span><b>Lesson ${Ls.n}:</b> ${Ls.en}</span><i>${TR[Ls.n]}</i></div>`:'';
-    return `<div class="book${PSPLIT.has(Ls.n)?' split':''}${Ls.flow?' flow':''}" style="--fs:${FS[Ls.n]||Ls.fs};--fsq:${FSQ[Ls.n]||'99cqi'};--fsm:min(${FSM[Ls.n]},${(parseFloat(FSM[Ls.n])*4.6).toFixed(1)}px)"><div class="sheet">${banner}<div class="grid">${rows}</div>${p.foot?`<div class="foot">${p.foot}</div>`:''}
-      <span class="pdfp" title="PDF page ${p.pdf} of 28">Page ${p.book}</span><span class="pno" title="Page ${p.book}">${arNum(p.book)}</span></div></div>`;
+    return `<div class="book${PSPLIT.has(Ls.n)?' split':''}${Ls.flow?' flow':''}" style="--fs:${FS[Ls.n]||Ls.fs};--fsq:${FSQ[Ls.n]||'99cqi'};--fsm:min(${FSM[Ls.n]},${(parseFloat(FSM[Ls.n])*4.6).toFixed(1)}px)"><span class="pdft" aria-hidden="true">PDF p.${p.pdf}</span><div class="sheet">${banner}<div class="grid">${rows}</div>${p.foot?`<div class="foot">${p.foot}</div>`:''}
+      <span class="pdfp" title="Page ${p.pdf} of 28 in the PDF file; the book prints ${p.book} at the bottom">PDF page ${p.pdf} · book page ${p.book}</span><span class="pno" title="Page ${p.book}">${arNum(p.book)}</span></div></div>`;
   }).join('');
   const ex=Ls.ex?`<div class="examples">${Ls.ex.map((w,i)=>`<article class="excard">${breakdownHTML(w,{title:'Example '+(i+1)})}</article>`).join('')}</div>`:'';
   const pdfs=[...new Set(Ls.pages.map(p=>p.pdf))], rng=a=>a.length>1?a[0]+'–'+a[a.length-1]:a[0];
@@ -1423,7 +1515,7 @@ function contentBody(d){
   if(d.mode==='muq') return `<div class="bd"><div class="top"><div class="word">${layered(d.t)}</div></div><div class="whole">Read by letter names: <strong>${esc(MUQ[d.t]||'')}</strong></div><p class="script">Names with a ~ are stretched for 6 counts. Names written without one, like Alif, Raa, Haa and Ṭaa, are not stretched past 2.</p></div>`;
   return breakdownHTML(d.t,{shown:d.v});
 }
-function closePanel(){ stopAudio(); if(panel){panel.remove();panel=null} if(current){current.classList.remove('on');current=null} }
+function closePanel(){ stopAudio(); if(panel){panel.remove();panel=null} if(current){current.classList.remove('on');current=null} document.querySelectorAll('.cell.ph').forEach(c=>c.classList.remove('ph')); }
 // wide screens with notes showing: the spelling goes in the column beside the page; otherwise right under the tapped row
 const sideMQ=matchMedia('(min-width:1080px)');
 function mount(){
@@ -1449,6 +1541,7 @@ document.getElementById('main').addEventListener('click',e=>{
   closePanel();
   const d=store.get(+b.dataset.id); if(!d) return;
   current=b; b.classList.add('on'); warm(d);
+  const ph=phraseOf(d); if(ph) idsOf(d.n,ph).forEach(id=>{ const x=document.querySelector(`.cell[data-id="${id}"]`); if(x&&x!==b) x.classList.add('ph'); });
   panel=document.createElement('div'); panel.className='expand';
   panel.innerHTML=`<button type="button" class="x">Close</button>`+contentFor(d,b.dataset.id)+`<p class="keys"><kbd>←</kbd> <kbd>→</kbd> <kbd>↑</kbd> <kbd>↓</kbd> move between ${d.mode==='letter'?'letters':'words'} · <kbd>Space</kbd> hear it · <kbd>Esc</kbd> close</p>`;
   mount(); fixLayers(panel);
